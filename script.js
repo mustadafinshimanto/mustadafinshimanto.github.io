@@ -239,4 +239,81 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
+    // ═══════════════════════════════════════
+    // 11. Certifications: 3D Tilt & Lightbox
+    // ═══════════════════════════════════════
+    const certCards = document.querySelectorAll('.cert-card');
+    const modal = document.getElementById('certModal');
+    const modalImg = document.getElementById('modalImage');
+    const modalClose = document.getElementById('modalClose');
+
+    certCards.forEach(card => {
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // Update CSS variables for the mouse follow effect
+            card.style.setProperty('--mouse-x', `${x}px`);
+            card.style.setProperty('--mouse-y', `${y}px`);
+
+            // Calculate tilt based on center point
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 8;
+            const rotateY = (centerX - x) / 8;
+
+            gsap.to(card, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                duration: 0.5,
+                ease: "power2.out",
+                transformPerspective: 1000
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                rotateX: 0,
+                rotateY: 0,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
+
+        // Open Lightbox
+        card.addEventListener('click', () => {
+            const imgSrc = card.querySelector('img').src;
+            modalImg.src = imgSrc;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            
+            // Animation for modal contents
+            gsap.from("#modalImage", {
+                scale: 0.8,
+                opacity: 0,
+                duration: 0.4,
+                ease: "back.out(1.7)"
+            });
+        });
+    });
+
+    // Close Lightbox
+    const closeModalFunc = () => {
+        modal.classList.remove('active');
+        document.body.style.overflow = '';
+    };
+
+    modalClose?.addEventListener('click', closeModalFunc);
+    modal?.addEventListener('click', (e) => {
+        if (e.target === modal) closeModalFunc();
+    });
+
+    // Keyboard support (Escape to close)
+    window.addEventListener('keydown', (e) => {
+        if (e.key === 'Escape' && modal.classList.contains('active')) {
+            closeModalFunc();
+        }
+    });
+
 });
