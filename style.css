@@ -728,14 +728,29 @@ body.loading { overflow: hidden; }
 }
 
 @media screen and (max-width: 600px) {
-    .hero-title { font-size: 15vw; }
-    .floating-text { font-size: 18vw; letter-spacing: -2px; }
-    .section-label { font-size: 0.75rem; letter-spacing: 3px; }
+    .hero-title { font-size: 14vw; }
+    /* Security and Innovation labels */
+    .floating-text { 
+        font-size: 12vw !important; 
+        letter-spacing: -1px !important;
+        width: 100%;
+        text-align: center;
+        left: 0 !important;
+    }
+    .section-label { 
+        font-size: 0.7rem; 
+        letter-spacing: 2px; 
+        line-height: 1.5;
+        white-space: normal;
+        text-align: center;
+        padding: 0 10vw;
+    }
     .massive-link { font-size: 12vw; }
     .skills-grid { grid-template-columns: 1fr; }
     .cert-grid { grid-template-columns: 1fr; }
-    .image-reveal-wrapper { width: 92vw; height: 40vh; }
+    .image-reveal-wrapper { width: 94vw; height: 35vh; margin: 0 auto; }
     .hero-footer { flex-direction: column; gap: 20px; align-items: flex-start; }
     .nav-menu { display: none; } 
-    .about-title-col h2 { font-size: 10vw; }
+    .about-title-col h2 { font-size: 9vw; margin-bottom: 20px; }
+    .about-grid { gap: 40px; }
 }
