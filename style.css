@@ -241,7 +241,7 @@ body.loading { overflow: hidden; }
 
 .hero-title {
     font-family: var(--font-heading);
-    font-size: clamp(3.5rem, 9vw, 11rem);
+    font-size: clamp(2.5rem, 8vw, 11rem);
     line-height: 0.95;
     text-transform: uppercase;
     color: var(--text-bright);
@@ -370,7 +370,7 @@ body.loading { overflow: hidden; }
 .floating-text {
     position: absolute;
     font-family: var(--font-heading);
-    font-size: clamp(5rem, 11vw, 13rem);
+    font-size: clamp(3rem, 10vw, 13rem);
     text-transform: uppercase;
     z-index: 20;
     pointer-events: none;
@@ -396,7 +396,7 @@ body.loading { overflow: hidden; }
 .about-title-col h2,
 .split-heading {
     font-family: var(--font-serif);
-    font-size: clamp(2.8rem, 5vw, 5.5rem);
+    font-size: clamp(2.2rem, 5vw, 5.5rem);
     line-height: 1.1; font-weight: 400;
     color: var(--text-bright);
 }
@@ -728,9 +728,14 @@ body.loading { overflow: hidden; }
 }
 
 @media screen and (max-width: 600px) {
+    .hero-title { font-size: 15vw; }
+    .floating-text { font-size: 18vw; letter-spacing: -2px; }
+    .section-label { font-size: 0.75rem; letter-spacing: 3px; }
+    .massive-link { font-size: 12vw; }
     .skills-grid { grid-template-columns: 1fr; }
     .cert-grid { grid-template-columns: 1fr; }
-    .image-reveal-wrapper { width: 90vw; height: 40vh; }
+    .image-reveal-wrapper { width: 92vw; height: 40vh; }
     .hero-footer { flex-direction: column; gap: 20px; align-items: flex-start; }
-    .nav-menu { display: none; } /* TODO: hamburger for mobile */
+    .nav-menu { display: none; } 
+    .about-title-col h2 { font-size: 10vw; }
 }
