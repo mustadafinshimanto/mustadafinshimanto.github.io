@@ -4,16 +4,16 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <!-- Native SEO Core -->
-    <title>Mustad Afin Shimanto (Mustadafin Shimanto) | AI-Native Software Builder & Cybersecurity</title>
-    <meta name="description" content="Official portfolio of Mustad Afin Shimanto. Expert in AI-Native Software Engineering, Vibe Coding, Python, Flutter, and Cybersecurity. Building the future computationally.">
-    <meta name="keywords" content="Mustadafin Shimanto, Mustad Afin Shimanto, AI-Native Software Builder, Vibe Coding, Cybersecurity, Penetration Testing, Python Developer, Flutter Developer, Portfolio, Software Engineering, AI Developer Bangladesh, BUBT student">
+    <title>Mustad Afin Shimanto (Mustadafin Shimanto) | Vibe Coding Expert & Cybersecurity</title>
+    <meta name="description" content="Official portfolio of Mustad Afin Shimanto. Expert in Vibe Coding, Python, Flutter, and Cybersecurity. Building the future computationally.">
+    <meta name="keywords" content="Mustadafin Shimanto, Mustad Afin Shimanto, Vibe Coding Expert, Cybersecurity, Penetration Testing, Python Developer, Flutter Developer, Portfolio, Software Engineering, AI Developer Bangladesh, BUBT student">
     <meta name="author" content="Mustad Afin Shimanto">
     <meta name="google-site-verification" content="H8-KK1a1rWIE_jY64G-OnIhPJEsjXmu30VmrQHSn5Uk" />
     <link rel="canonical" href="https://mustadafinshimanto.github.io/">
 
     <!-- Open Graph SEO (Facebook, LinkedIn, Discord) -->
-    <meta property="og:title" content="Mustad Afin Shimanto | AI-Native Software Builder">
-    <meta property="og:description" content="Official portfolio of Mustad Afin Shimanto. Expert in AI-Native Software Engineering, Vibe Coding, and Cybersecurity. Building the future computationally.">
+    <meta property="og:title" content="Mustad Afin Shimanto | Vibe Coding Expert">
+    <meta property="og:description" content="Official portfolio of Mustad Afin Shimanto. Expert in Vibe Coding and Cybersecurity. Building the future computationally.">
     <meta property="og:url" content="https://mustadafinshimanto.github.io/">
     <meta property="og:image" content="https://mustadafinshimanto.github.io/assets/hero_bg.png">
     <meta property="og:type" content="website">
@@ -22,7 +22,7 @@
     <!-- Twitter Card SEO -->
     <meta name="twitter:card" content="summary_large_image">
     <meta name="twitter:title" content="Mustad Afin Shimanto | Vibe Coding Expert">
-    <meta name="twitter:description" content="AI-Native Software Builder & Cybersecurity Expert. Explore the digital future.">
+    <meta name="twitter:description" content="Vibe Coding Expert & Cybersecurity Expert. Explore the digital future.">
     <meta name="twitter:image" content="https://mustadafinshimanto.github.io/assets/hero_bg.png">
 
     <!-- Schema.org Script (JSON-LD for Google Knowledge Graph) -->
@@ -32,8 +32,8 @@
       "@type": "Person",
       "name": "Mustad Afin Shimanto",
       "alternateName": ["mustadafinshimanto", "Mustadafin Shimanto"],
-      "jobTitle": "AI-Native Software Builder",
-      "description": "AI-Native Software Builder & Cybersecurity Expert specializing in Vibe Coding, Python, Flutter, and Penetration Testing.",
+      "jobTitle": "Vibe Coding Expert",
+      "description": "Vibe Coding Expert & Cybersecurity Expert specializing in Vibe Coding, Python, Flutter, and Penetration Testing.",
       "url": "https://mustadafinshimanto.github.io/",
       "image": "https://mustadafinshimanto.github.io/assets/hero_bg.png",
       "sameAs": [
@@ -44,11 +44,11 @@
         "@type": "CollegeOrUniversity",
         "name": "Bangladesh University of Business and Technology (BUBT)"
       },
-      "knowsAbout": ["AI-Native Software Engineering", "Vibe Coding", "Cybersecurity", "Python", "Flutter", "Penetration Testing"]
+      "knowsAbout": ["Vibe Coding", "Cybersecurity", "Python", "Flutter", "Penetration Testing"]
     }
     </script>
 
-    <link href="https://fonts.googleapis.com/css2?family=Syncopate:wght@400;700&family=Playfair+Display:ital,wght@0,400;1,600&family=Inter:wght@300;400;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link rel="stylesheet" href="style.css">
 
@@ -56,13 +56,25 @@
     <link rel="icon" type="image/png" href="assets/favicon.png">
     <link rel="apple-touch-icon" href="assets/favicon.png">
 
-    <!-- GSAP + Plugins -->
+    <!-- Lenis Smooth Scroll -->
+    <script src="https://unpkg.com/@studio-freight/lenis@1.0.33/dist/lenis.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
     </head>
 <body class="loading">
+    <!-- Scanning Line Effect -->
+    <div class="scanning-line"></div>
+
+    <!-- Back to Top -->
+    <div class="back-to-top" id="backToTop" data-cursor="hover">
+        <i class="fa-solid fa-arrow-up"></i>
+    </div>
+
     <!-- Ambient Background Animation -->
     <div class="ambient-background">
+        <video autoplay muted loop playsinline class="bg-video">
+            <source src="https://cdn.pixabay.com/video/2026/02/02/332264_medium.mp4" type="video/mp4">
+        </video>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="noise-overlay"></div>
@@ -82,13 +94,16 @@
         <div class="nav-logo">
             <a href="#home" class="logo-text">Shimanto<span class="dot">.</span></a>
         </div>
-        <div class="nav-menu">
+        <div class="nav-menu" id="navMenu">
             <a href="#about" data-cursor="hover">About</a>
             <a href="#skills" data-cursor="hover">Skills</a>
             <a href="https://github.com/mustadafinshimanto" target="_blank" data-cursor="hover">GitHub</a>
             <a href="https://www.linkedin.com/in/mustad-afin-shimanto/" target="_blank" data-cursor="hover">LinkedIn</a>
             <a href="#contact" class="nav-cta" data-cursor="hover">Contact</a>
         </div>
+        <button class="menu-toggle" id="menuToggle" aria-label="Toggle menu">
+            <i class="fa-solid fa-bars"></i>
+        </button>
     </nav>
 
     <main id="smooth-wrapper">
@@ -96,21 +111,15 @@
 
             <!-- Hero Section -->
             <section id="home" class="hero">
-                <!-- Background Video -->
-                <div class="hero-video-bg">
-                    <img src="assets/hero_bg.png" alt="Mustad Afin Shimanto - Hero Background">
-                    <div class="video-overlay"></div>
-                </div>
-
                 <div class="hero-container">
                     <p class="hero-label reveal-up">Mustad Afin Shimanto</p>
                     <h1 class="hero-title">
-                        <div class="line-wrap"><span class="reveal-text">Vibe</span></div>
-                        <div class="line-wrap indent"><span class="reveal-text">Coding</span></div>
-                        <div class="line-wrap"><span class="reveal-text">Expert</span></div>
+                        <div class="line-wrap"><span class="reveal-text" data-split>Vibe</span></div>
+                        <div class="line-wrap indent"><span class="reveal-text" data-split>Coding</span></div>
+                        <div class="line-wrap"><span class="reveal-text" data-split>Expert</span></div>
                     </h1>
                     <div class="hero-footer">
-                        <p class="reveal-up delay-2">AI-Native Software Builder & Cybersecurity</p>
+                        <p class="reveal-up delay-2">Vibe Coding Expert & Cybersecurity</p>
                         <div class="scroll-indicator reveal-up delay-3">
                             <span>Scroll</span>
                             <div class="scroll-line"></div>
@@ -123,13 +132,13 @@
             <section class="marquee-section">
                 <div class="marquee-track">
                     <div class="marquee-content">
-                        <span>AI-NATIVE</span><span class="sep">✦</span>
+                        <span>VIBE CODING</span><span class="sep">✦</span>
                         <span>VIBE CODING</span><span class="sep">✦</span>
                         <span>CYBERSECURITY</span><span class="sep">✦</span>
                         <span>FLUTTER</span><span class="sep">✦</span>
                         <span>PYTHON</span><span class="sep">✦</span>
                         <span>PENTESTING</span><span class="sep">✦</span>
-                        <span>AI-NATIVE</span><span class="sep">✦</span>
+                        <span>VIBE CODING</span><span class="sep">✦</span>
                         <span>VIBE CODING</span><span class="sep">✦</span>
                         <span>CYBERSECURITY</span><span class="sep">✦</span>
                         <span>FLUTTER</span><span class="sep">✦</span>
@@ -164,8 +173,8 @@
                             <div class="service-item reveal-up">
                                 <span class="service-number">01</span>
                                 <div>
-                                    <h3>AI-Native Engineering</h3>
-                                    <p>Building rapid, intelligent software via Google Antigravity & AI agents.</p>
+                                    <h3>Agentic Systems</h3>
+                                    <p>Building rapid, intelligent software via Agentic Workflows & AI agents.</p>
                                 </div>
                             </div>
                             <div class="service-item reveal-up">
@@ -268,32 +277,32 @@
                 <h2 class="section-label reveal-up">Skills & Expertise</h2>
                 <div class="skills-grid">
                     <div class="skill-card reveal-up">
-                        <i class="fa-solid fa-shield-halved"></i>
+                        <img src="assets/skills/skill_pentest_1775657969314.png" alt="Penetration Testing" class="skill-icon-img">
                         <h3>Penetration Testing</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="85"></div></div>
                     </div>
                     <div class="skill-card reveal-up">
-                        <i class="fa-solid fa-network-wired"></i>
+                        <img src="assets/skills/skill_network_1775657990666.png" alt="Network Security" class="skill-icon-img">
                         <h3>Network Security</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="80"></div></div>
                     </div>
                     <div class="skill-card reveal-up">
-                        <i class="fa-solid fa-robot"></i>
-                        <h3>AI-Native Dev</h3>
+                        <img src="assets/skills/skill_system_1775658008209.png" alt="System Security" class="skill-icon-img">
+                        <h3>System Security</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="90"></div></div>
                     </div>
                     <div class="skill-card reveal-up">
-                        <i class="fa-solid fa-code"></i>
+                        <img src="assets/skills/skill_vibecoding_1775658028360.png" alt="Vibe Coding" class="skill-icon-img">
                         <h3>Vibe Coding</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="95"></div></div>
                     </div>
                     <div class="skill-card reveal-up">
-                        <i class="fa-brands fa-python"></i>
+                        <img src="assets/skills/skill_python_1775658045510.png" alt="Python & Django" class="skill-icon-img">
                         <h3>Python & Django</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="75"></div></div>
                     </div>
                     <div class="skill-card reveal-up">
-                        <i class="fa-solid fa-mobile-screen-button"></i>
+                        <img src="assets/skills/skill_flutter_1775658062003.png" alt="Flutter & Dart" class="skill-icon-img">
                         <h3>Flutter & Dart</h3>
                         <div class="skill-bar"><div class="skill-fill" data-width="70"></div></div>
                     </div>
@@ -322,7 +331,7 @@
                         <a href="https://www.linkedin.com/in/mustad-afin-shimanto/" target="_blank" data-cursor="hover"><i class="fa-brands fa-linkedin"></i> LinkedIn</a>
                     </div>
 
-                    <p class="copyright reveal-up">&copy; 2026 Mustad Afin Shimanto. Crafted with AI-Native flow.</p>
+                    <p class="copyright reveal-up">&copy; 2026 Mustad Afin Shimanto. Crafted with Vibe Coding flow.</p>
                 </div>
             </section>
 

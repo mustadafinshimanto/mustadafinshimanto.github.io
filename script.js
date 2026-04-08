@@ -1,6 +1,75 @@
 document.addEventListener("DOMContentLoaded", () => {
+    
+    // ═══════════════════════════════════════
+    // 0. Smooth Scroll (Lenis)
+    // ═══════════════════════════════════════
+    const lenis = new Lenis({
+        duration: 0.8,
+        easing: (t) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+        orientation: 'vertical',
+        gestureOrientation: 'vertical',
+        smoothWheel: true,
+        wheelMultiplier: 2.2,
+        smoothTouch: false,
+        touchMultiplier: 2,
+        infinite: false,
+    });
+
+    function raf(time) {
+        lenis.raf(time);
+        requestAnimationFrame(raf);
+    }
+    requestAnimationFrame(raf);
+
+    // ═══════════════════════════════════════
+    // 1. Core Logic & Scroll
+    // ═══════════════════════════════════════
+    if (history.scrollRestoration) {
+        history.scrollRestoration = 'manual';
+    }
+    window.scrollTo(0, 0);
+
+    const backToTop = document.getElementById('backToTop');
+    if (backToTop) {
+        backToTop.addEventListener('click', () => {
+            lenis.scrollTo(0, { duration: 1.5 });
+        });
+    }
 
     gsap.registerPlugin(ScrollTrigger);
+
+    // Connect Lenis to ScrollTrigger
+    lenis.on('scroll', ScrollTrigger.update);
+
+    ScrollTrigger.create({
+        start: 'top -500',
+        onUpdate: (self) => {
+            if (self.scroll() > 500) {
+                backToTop?.classList.add('visible');
+            } else {
+                backToTop?.classList.remove('visible');
+            }
+        }
+    });
+
+    // ═══════════════════════════════════════
+    // 2. Text Splitting for Animations
+    // ═══════════════════════════════════════
+    const splitText = (selector) => {
+        const elements = document.querySelectorAll(selector);
+        elements.forEach(el => {
+            const text = el.innerText;
+            el.innerHTML = '';
+            text.split('').forEach(char => {
+                const span = document.createElement('span');
+                span.className = 'char';
+                span.innerText = char === ' ' ? '\u00A0' : char;
+                el.appendChild(span);
+            });
+        });
+    };
+
+    splitText('[data-split]');
 
     // ═══════════════════════════════════════
     // 3. Preloader
@@ -32,24 +101,48 @@ document.addEventListener("DOMContentLoaded", () => {
         // Slide preloader up
         tl.to('.preloader', {
             yPercent: -100,
-            duration: 1,
+            duration: 1.2,
             ease: "power4.inOut"
         });
 
-        // Reveal hero title lines
-        tl.to('.reveal-text', {
-            y: "0%",
-            duration: 1.4,
-            stagger: 0.15,
-            ease: "power4.out"
-        }, "-=0.4");
+        // Reveal background video opacity
+        tl.fromTo('.bg-video', { opacity: 0 }, {
+            opacity: 0.4,
+            duration: 2,
+            ease: "power2.out"
+        }, "-=0.8");
+
+        // Reveal hero title characters with 3D cyber transitions
+        tl.fromTo('.hero-title .char', 
+            { 
+                y: "150%", 
+                opacity: 0, 
+                rotateX: -90,
+                rotateY: 45,
+                z: -200,
+                color: "#7000ff" 
+            },
+            {
+                y: "0%", 
+                opacity: 1, 
+                rotateX: 0,
+                rotateY: 0,
+                z: 0,
+                color: "#ffffff",
+                duration: 1.5,
+                stagger: {
+                    amount: 0.8,
+                    from: "random"
+                },
+                ease: "elastic.out(1, 0.4)"
+            }, "-=1.2");
 
         // Fade in hero label
         tl.to('.hero-label', {
             opacity: 1, y: 0,
             duration: 0.8,
             ease: "power2.out"
-        }, "-=1.2");
+        }, "-=1.0");
 
         // Fade hero footer elements
         tl.to('.hero-footer p, .scroll-indicator', {
@@ -198,7 +291,7 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ═══════════════════════════════════════
-    // 13. Skill cards stagger
+    // 13. Skill cards tilt & stagger
     // ═══════════════════════════════════════
     gsap.utils.toArray('.skill-card').forEach((card, i) => {
         gsap.fromTo(card,
@@ -214,30 +307,55 @@ document.addEventListener("DOMContentLoaded", () => {
                 }
             }
         );
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 15;
+            const rotateY = (centerX - x) / 15;
+
+            gsap.to(card, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                duration: 0.5,
+                ease: "power2.out"
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                rotateX: 0, rotateY: 0,
+                duration: 0.5, ease: "power2.out"
+            });
+        });
     });
 
     // ═══════════════════════════════════════
-    // 14. Footer massive link magnetic effect
+    // 14. Magnetic Effects
     // ═══════════════════════════════════════
-    const massiveLink = document.querySelector('.massive-link');
-    if (massiveLink) {
-        massiveLink.addEventListener('mousemove', (e) => {
-            const rect = massiveLink.getBoundingClientRect();
+    const magneticElements = document.querySelectorAll('.nav-cta, .massive-link, .back-to-top, .footer-links a');
+    
+    magneticElements.forEach(el => {
+        el.addEventListener('mousemove', (e) => {
+            const rect = el.getBoundingClientRect();
             const x = e.clientX - rect.left - rect.width / 2;
             const y = e.clientY - rect.top - rect.height / 2;
-            gsap.to(massiveLink, {
-                x: x * 0.15, y: y * 0.15,
+            gsap.to(el, {
+                x: x * 0.3, y: y * 0.3,
                 duration: 0.4, ease: "power2.out"
             });
         });
 
-        massiveLink.addEventListener('mouseleave', () => {
-            gsap.to(massiveLink, {
+        el.addEventListener('mouseleave', () => {
+            gsap.to(el, {
                 x: 0, y: 0,
-                duration: 0.6, ease: "elastic.out(1, 0.5)"
+                duration: 0.6, ease: "elastic.out(1, 0.4)"
             });
         });
-    }
+    });
 
     // ═══════════════════════════════════════
     // 11. Certifications: 3D Tilt & Lightbox
@@ -256,7 +374,6 @@ document.addEventListener("DOMContentLoaded", () => {
             // Update CSS variables for the mouse follow effect
             card.style.setProperty('--mouse-x', `${x}px`);
             card.style.setProperty('--mouse-y', `${y}px`);
-
             // Calculate tilt based on center point
             const centerX = rect.width / 2;
             const centerY = rect.height / 2;
@@ -315,5 +432,56 @@ document.addEventListener("DOMContentLoaded", () => {
             closeModalFunc();
         }
     });
+
+    // ═══════════════════════════════════════
+    // 15. Mobile Menu Toggle
+    // ═══════════════════════════════════════
+    const menuToggle = document.getElementById('menuToggle');
+    const navMenu = document.getElementById('navMenu');
+
+    if (menuToggle && navMenu) {
+        menuToggle.addEventListener('click', () => {
+            navMenu.classList.toggle('active');
+            const icon = menuToggle.querySelector('i');
+            if (navMenu.classList.contains('active')) {
+                icon.classList.remove('fa-bars');
+                icon.classList.add('fa-xmark');
+            } else {
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            }
+        });
+
+        // Close menu on link click
+        navMenu.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                navMenu.classList.remove('active');
+                const icon = menuToggle.querySelector('i');
+                icon.classList.remove('fa-xmark');
+                icon.classList.add('fa-bars');
+            });
+        });
+    }
+
+    // ═══════════════════════════════════════
+    // 16. Continuous Cyber Wave Effect for Hero
+    // ═══════════════════════════════════════
+    const heroChars = document.querySelectorAll('.hero-title .char');
+    
+    // Start a continuous, glowing wave animation automatically after the intro sequence finishes
+    setTimeout(() => {
+        gsap.to('.hero-title .char', {
+            y: -15,
+            color: "#00f3ff",
+            textShadow: "0 0 20px rgba(0,243,255,0.8)",
+            duration: 1.5,
+            stagger: {
+                each: 0.1,
+                yoyo: true,
+                repeat: -1
+            },
+            ease: "sine.inOut"
+        });
+    }, 3000);
 
 });

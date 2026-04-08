@@ -3,31 +3,40 @@
    ============================================ */
 
 :root {
-    --bg: #0a0a0a;
-    --bg-light: #111111;
-    --text: #F3F3F3;
+    --bg: #050505;
+    --bg-light: #0a0a0a;
+    --text: #e0e0e0;
     --text-bright: #ffffff;
-    --accent: #00e5ff;
-    --accent-2: #bf5af2;
-    --muted: #999999;
+    --accent: #00f3ff;
+    --accent-2: #7000ff;
+    --muted: #888888;
+    --glass: rgba(255, 255, 255, 0.03);
+    --glass-border: rgba(255, 255, 255, 0.08);
 
-    --font-heading: 'Syncopate', sans-serif;
-    --font-serif: 'Playfair Display', serif;
-    --font-body: 'Inter', sans-serif;
+    --font-heading: 'Orbitron', sans-serif;
+    --font-serif: 'Share Tech Mono', monospace;
+    --font-body: 'Rajdhani', sans-serif;
 }
 
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-html { scroll-behavior: smooth; }
+html { overflow-x: hidden; }
+
+/* ── Custom Scrollbar ── */
+::-webkit-scrollbar { width: 5px; }
+::-webkit-scrollbar-track { background: var(--bg); }
+::-webkit-scrollbar-thumb {
+    background: linear-gradient(var(--accent), var(--accent-2));
+    border-radius: 10px;
+}
 
 body {
     background-color: var(--bg);
     color: var(--text);
     font-family: var(--font-body);
     font-size: 16px;
-    line-height: 1.6;
+    line-height: 1.7;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
 }
 
 a { text-decoration: none; color: inherit; }
@@ -79,6 +88,20 @@ body.loading { overflow: hidden; }
     overflow: hidden;
     pointer-events: none;
     background: var(--bg);
+}
+
+.bg-video {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    min-width: 100%;
+    min-height: 100%;
+    width: auto;
+    height: auto;
+    transform: translate(-50%, -50%);
+    object-fit: cover;
+    opacity: 0.4;
+    filter: saturate(1.2) contrast(1.1);
 }
 
 .orb {
@@ -135,6 +158,11 @@ body.loading { overflow: hidden; }
     border-bottom: 1px solid rgba(255,255,255,0.06);
 }
 
+.nav-logo {
+    position: relative;
+    z-index: 1001;
+}
+
 .logo-text {
     font-family: var(--font-heading);
     font-size: 1.3rem;
@@ -187,6 +215,16 @@ body.loading { overflow: hidden; }
 
 .nav-cta::after { display: none !important; }
 
+.menu-toggle {
+    display: none;
+    background: none;
+    border: none;
+    color: var(--text-bright);
+    font-size: 1.5rem;
+    cursor: pointer;
+    z-index: 1001;
+}
+
 /* ── Hero Section ── */
 .hero {
     position: relative;
@@ -196,31 +234,8 @@ body.loading { overflow: hidden; }
     overflow: hidden;
 }
 
-.hero-video-bg {
-    position: absolute; 
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 0;
-}
+/* Removed hero-video-bg styles as background is now global in ambient-background */
 
-.hero-video-bg video, .hero-video-bg img {
-    width: 100%; 
-    height: 100%;
-    object-fit: cover;
-    object-position: center;
-}
-
-.video-overlay {
-    position: absolute; inset: 0;
-    background: linear-gradient(
-        180deg,
-        rgba(10,10,10,0.7) 0%,
-        rgba(10,10,10,0.5) 40%,
-        rgba(10,10,10,0.85) 100%
-    );
-}
 
 .hero-container {
     position: relative; z-index: 2;
@@ -234,9 +249,29 @@ body.loading { overflow: hidden; }
     text-transform: uppercase;
     letter-spacing: 6px;
     font-size: 0.95rem;
-    color: var(--accent);
     margin-bottom: 20px;
     font-weight: 600;
+    
+    /* Stylish Continuous Animation (Shimmer) */
+    background: linear-gradient(
+        to right,
+        var(--accent) 0%,
+        var(--accent-2) 25%,
+        #fff 50%,
+        var(--accent-2) 75%,
+        var(--accent) 100%
+    );
+    background-size: 200% auto;
+    color: var(--accent);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    animation: shimmer 5s linear infinite;
+    display: inline-block;
+}
+
+@keyframes shimmer {
+    to { background-position: 200% center; }
 }
 
 .hero-title {
@@ -257,7 +292,6 @@ body.loading { overflow: hidden; }
 
 .reveal-text {
     display: inline-block;
-    transform: translateY(110%);
 }
 
 .hero-footer {
@@ -333,18 +367,18 @@ body.loading { overflow: hidden; }
 /* ── Parallax Image Sections ── */
 .image-section {
     position: relative;
-    width: 100%; min-height: 90vh;
+    width: 100%; min-height: 100vh;
     display: flex; align-items: center; justify-content: flex-start;
-    padding: 0 8vw;
-    margin: 5vh 0;
+    padding: 0 5vw;
+    margin: 0;
 }
 
 .image-section.right-aligned { justify-content: flex-end; }
 
 .image-reveal-wrapper {
-    width: 75vw; height: 85vh;
+    width: 88vw; height: 92vh;
     overflow: hidden; position: relative;
-    border-radius: 8px;
+    border-radius: 12px;
     z-index: 1;
 }
 
@@ -369,6 +403,10 @@ body.loading { overflow: hidden; }
 
 .floating-text {
     position: absolute;
+    top: 40%;
+    left: 0;
+    width: 100%;
+    text-align: center;
     font-family: var(--font-heading);
     font-size: clamp(3rem, 10vw, 13rem);
     text-transform: uppercase;
@@ -377,7 +415,7 @@ body.loading { overflow: hidden; }
     line-height: 1;
 }
 
-.image-section.right-aligned .floating-text { left: 5vw; }
+/* Removed offset for the right-aligned section so the text sits safely centered over the picture */
 
 .difference-text {
     color: #fff;
@@ -482,6 +520,22 @@ body.loading { overflow: hidden; }
     color: var(--accent);
     margin-bottom: 20px;
     display: block;
+}
+
+.skill-icon-img {
+    width: 80px;
+    height: 80px;
+    object-fit: contain;
+    margin-bottom: 20px;
+    display: block;
+    border-radius: 8px;
+    filter: drop-shadow(0 4px 15px rgba(0, 229, 255, 0.3));
+    transition: transform 0.4s ease;
+}
+
+.skill-card:hover .skill-icon-img {
+    transform: scale(1.1) rotate(2deg);
+    filter: drop-shadow(0 8px 25px rgba(0, 243, 255, 0.6));
 }
 
 .skill-card h3 {
@@ -723,19 +777,52 @@ body.loading { overflow: hidden; }
     .skills-grid { grid-template-columns: 1fr 1fr; }
     .cert-grid { grid-template-columns: repeat(2, 1fr); }
     .image-reveal-wrapper { width: 80vw; height: 50vh; }
-    .nav-menu { gap: 20px; }
-    .nav-menu a { font-size: 0.8rem; }
+}
+
+@media screen and (max-width: 768px) {
+    .menu-toggle { display: block; }
+    .nav-menu {
+        position: fixed; top: 0; right: -100%;
+        width: 100vw; height: 100vh;
+        background: rgba(5, 5, 5, 0.98);
+        flex-direction: column; justify-content: center; align-items: center;
+        gap: 40px;
+        transition: right 0.4s ease;
+        z-index: 1000;
+    }
+    .nav-menu.active { right: 0; }
+    .nav-menu a { font-size: 1.2rem; }
+    .nav-cta { padding: 12px 30px !important; }
 }
 
 @media screen and (max-width: 600px) {
-    .hero-title { font-size: 14vw; }
-    /* Security and Innovation labels */
+    .spacer { padding: 8vh 5vw; }
+    .hero-title { font-size: 11vw; line-height: 1.1; margin-top: 10vh; }
+    .hero-title .line-wrap { padding-bottom: 0px; }
+    .line-wrap.indent { padding-left: 0; }
+    .hero-footer { margin-top: auto; }
+    /* Security and Innovation labels & Image Sections */
+    .image-section {
+        min-height: auto;
+        padding: 0 4vw;
+        margin: 3vh 0;
+        justify-content: center;
+    }
+    .image-section.right-aligned {
+        justify-content: center;
+    }
+    .image-reveal-wrapper {
+        width: 100%; 
+        height: 75vh;
+        border-radius: 12px;
+    }
     .floating-text { 
-        font-size: 12vw !important; 
-        letter-spacing: -1px !important;
+        font-size: 15vw !important; 
+        letter-spacing: 0px !important;
         width: 100%;
         text-align: center;
         left: 0 !important;
+        top: 45% !important;
     }
     .section-label { 
         font-size: 0.7rem; 
@@ -743,14 +830,71 @@ body.loading { overflow: hidden; }
         line-height: 1.5;
         white-space: normal;
         text-align: center;
-        padding: 0 10vw;
+        padding: 0 5vw;
+        margin-bottom: 30px;
     }
     .massive-link { font-size: 12vw; }
-    .skills-grid { grid-template-columns: 1fr; }
-    .cert-grid { grid-template-columns: 1fr; }
-    .image-reveal-wrapper { width: 94vw; height: 35vh; margin: 0 auto; }
+    .skills-grid { grid-template-columns: 1fr; gap: 20px; }
+    .cert-grid { grid-template-columns: 1fr; gap: 20px; }
     .hero-footer { flex-direction: column; gap: 20px; align-items: flex-start; }
-    .nav-menu { display: none; } 
-    .about-title-col h2 { font-size: 9vw; margin-bottom: 20px; }
+    .about-title-col h2 { font-size: 10vw; margin-bottom: 20px; }
     .about-grid { gap: 40px; }
+    .about-text-col > p { font-size: 1rem; margin-bottom: 30px; }
+    .service-item { flex-direction: column; gap: 10px; padding: 20px 0; }
+    .footer h2 { font-size: 10vw; }
+    .footer-links { flex-direction: column; gap: 20px; align-items: center; }
+}
+
+/* Handled in main utilities or removed */
+
+/* ── Scanning Line ── */
+.scanning-line {
+    position: fixed;
+    top: 0; left: 0;
+    width: 100%; height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    z-index: 10002;
+    pointer-events: none;
+    opacity: 0.15;
+    animation: scanMove 8s linear infinite;
+}
+
+@keyframes scanMove {
+    0% { top: -10%; }
+    100% { top: 110%; }
+}
+
+/* ── Back to Top ── */
+.back-to-top {
+    position: fixed;
+    bottom: 40px; right: 40px;
+    width: 50px; height: 50px;
+    background: var(--glass);
+    border: 1px solid var(--glass-border);
+    border-radius: 50%;
+    display: flex; align-items: center; justify-content: center;
+    color: var(--text-bright);
+    z-index: 999;
+    opacity: 0; pointer-events: none;
+    transition: transform 0.4s, opacity 0.4s, background 0.4s;
+    backdrop-filter: blur(10px);
+}
+
+.back-to-top.visible { opacity: 1; pointer-events: auto; }
+.back-to-top:hover { 
+    background: var(--accent); 
+    color: var(--bg);
+    transform: translateY(-5px);
+}
+
+/* ── Enhanced Cards ── */
+.skill-card, .cert-card {
+    transition: transform 0.6s cubic-bezier(0.16, 1, 0.3, 1), 
+                border-color 0.4s, 
+                box-shadow 0.4s !important;
+}
+
+.skill-card:hover, .cert-card:hover {
+    box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
+    border-color: var(--accent);
 }
