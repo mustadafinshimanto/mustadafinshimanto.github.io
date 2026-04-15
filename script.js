@@ -464,17 +464,23 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // ═══════════════════════════════════════
-    // 16. Continuous Cyber Wave Effect for Hero
+    // 16. Continuous Title Transition
     // ═══════════════════════════════════════
-    const heroChars = document.querySelectorAll('.hero-title .char');
-    
-    // Start a continuous, glowing wave animation automatically after the intro sequence finishes
-    setTimeout(() => {
-        gsap.to('.hero-title .char', {
+    const titles = [
+        { l1: "Vibe", l2: "Coding" },
+        { l1: "Cyber", l2: "Security" },
+        { l1: "Vibe", l2: "Coding" }
+    ];
+    let currentTitleIndex = 0;
+    let waveTween;
+
+    function startHeroWave() {
+        if (waveTween) waveTween.kill();
+        waveTween = gsap.to('.hero-title .char', {
             y: -15,
             color: "#00f3ff",
             textShadow: "0 0 20px rgba(0,243,255,0.8)",
-            duration: 1.5,
+            duration: 1.2,
             stagger: {
                 each: 0.1,
                 yoyo: true,
@@ -482,6 +488,62 @@ document.addEventListener("DOMContentLoaded", () => {
             },
             ease: "sine.inOut"
         });
+    }
+
+    function swapHeroTitle() {
+        currentTitleIndex = (currentTitleIndex + 1) % titles.length;
+        const nextTitle = titles[currentTitleIndex];
+
+        const line1 = document.getElementById('titleLine1');
+        const line2 = document.getElementById('titleLine2');
+
+        const tl = gsap.timeline({
+            onComplete: () => {
+                // Update text and re-split
+                line1.innerText = nextTitle.l1;
+                line2.innerText = nextTitle.l2;
+                
+                // We only need to re-split the specific lines that changed
+                splitText('#titleLine1');
+                splitText('#titleLine2');
+
+                // Reveal animation for new characters
+                gsap.fromTo(['#titleLine1 .char', '#titleLine2 .char'], 
+                    { 
+                        y: "100%", 
+                        opacity: 0,
+                        rotateX: -90,
+                        color: "#7000ff"
+                    },
+                    {
+                        y: "0%", 
+                        opacity: 1,
+                        rotateX: 0,
+                        color: "#ffffff",
+                        duration: 0.8,
+                        stagger: 0.05,
+                        ease: "power2.out",
+                        onComplete: startHeroWave
+                    }
+                );
+            }
+        });
+
+        // Hide current characters of line 1 and 2
+        tl.to(['#titleLine1 .char', '#titleLine2 .char'], {
+            y: "-100%",
+            opacity: 0,
+            duration: 0.5,
+            stagger: 0.02,
+            ease: "power2.in"
+        });
+    }
+
+    // Start wave after initial intro (3s)
+    setTimeout(() => {
+        startHeroWave();
+        // Start rotation loop
+        setInterval(swapHeroTitle, 5000);
     }, 3000);
 
 });
