@@ -28,34 +28,39 @@
 
     <!-- Schema.org Script (JSON-LD for Google Knowledge Graph & Site Name) -->
     <script type="application/ld+json">
-    [
-      {
-        "@context": "https://schema.org/",
-        "@type": "WebSite",
-        "name": "Mustadafin Shimanto",
-        "alternateName": ["Mustadafin Shimanto", "Shimanto Portfolio"],
-        "url": "https://mustadafinshimanto.github.io/"
-      },
-      {
-        "@context": "https://schema.org/",
-        "@type": "Person",
-        "name": "Mustadafin Shimanto",
-        "alternateName": ["mustadafinshimanto", "Mustadafin Shimanto"],
-        "jobTitle": "Vibe Coder and Cyber Security Specialist",
-        "description": "Vibe Coder and Cyber Security Specialist specializing in Vibe Coding, Python, Flutter, and Penetration Testing.",
-        "url": "https://mustadafinshimanto.github.io/",
-        "image": "https://mustadafinshimanto.github.io/assets/mustadafinshimanto.png",
-        "sameAs": [
-          "https://www.linkedin.com/in/mustadafinshimanto/",
-          "https://github.com/mustadafinshimanto"
-        ],
-        "alumniOf": {
-          "@type": "CollegeOrUniversity",
-          "name": "Bangladesh University of Business and Technology (BUBT)"
+    {
+      "@context": "https://schema.org",
+      "@graph": [
+        {
+          "@type": "WebSite",
+          "@id": "https://mustadafinshimanto.github.io/#website",
+          "url": "https://mustadafinshimanto.github.io/",
+          "name": "Mustadafin Shimanto",
+          "alternateName": "Shimanto Portfolio",
+          "publisher": {
+            "@id": "https://mustadafinshimanto.github.io/#person"
+          }
         },
-        "knowsAbout": ["Vibe Coding", "Cybersecurity", "Python", "Flutter", "Penetration Testing"]
-      }
-    ]
+        {
+          "@type": "Person",
+          "@id": "https://mustadafinshimanto.github.io/#person",
+          "name": "Mustadafin Shimanto",
+          "jobTitle": "Vibe Coder and Cyber Security Specialist",
+          "description": "Vibe Coder and Cyber Security Specialist specializing in Vibe Coding, Python, Flutter, and Penetration Testing.",
+          "url": "https://mustadafinshimanto.github.io/",
+          "image": "https://mustadafinshimanto.github.io/assets/mustadafinshimanto.png",
+          "sameAs": [
+            "https://www.linkedin.com/in/mustadafinshimanto/",
+            "https://github.com/mustadafinshimanto"
+          ],
+          "alumniOf": {
+            "@type": "CollegeOrUniversity",
+            "name": "Bangladesh University of Business and Technology (BUBT)"
+          },
+          "knowsAbout": ["Vibe Coding", "Cybersecurity", "Python", "Flutter", "Penetration Testing"]
+        }
+      ]
+    }
     </script>
 
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -122,12 +127,12 @@
             <!-- Hero Section -->
             <section id="home" class="hero">
                 <div class="hero-container">
-                    <p class="hero-label reveal-up">Mustadafin Shimanto</p>
-                    <h1 class="hero-title" id="heroTitle">
+                    <h1 class="hero-label reveal-up">Mustadafin Shimanto</h1>
+                    <h2 class="hero-title" id="heroTitle">
                         <div class="line-wrap"><span class="reveal-text" data-split id="titleLine1">Vibe</span></div>
                         <div class="line-wrap indent"><span class="reveal-text" data-split id="titleLine2">Coding</span></div>
                         <div class="line-wrap"><span class="reveal-text" data-split id="titleLine3">Expert</span></div>
-                    </h1>
+                    </h2>
                     <div class="hero-footer">
                         <p class="reveal-up delay-2">Vibe Coder and Cyber Security Specialist</p>
                         <div class="scroll-indicator reveal-up delay-3">
