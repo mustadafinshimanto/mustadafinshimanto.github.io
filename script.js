@@ -210,12 +210,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     // 8. Parallax on images
     // ═══════════════════════════════════════
-    document.querySelectorAll('.image-reveal img, .image-reveal video').forEach(img => {
+    document.querySelectorAll('.image-reveal img, .image-reveal video, .project-image-wrapper img').forEach(img => {
+        const trigger = img.closest('.image-reveal-wrapper') || img.closest('.project-image-wrapper');
         gsap.to(img, {
             yPercent: -15,
             ease: "none",
             scrollTrigger: {
-                trigger: img.closest('.image-reveal-wrapper'),
+                trigger: trigger,
                 start: "top bottom",
                 end: "bottom top",
                 scrub: true
