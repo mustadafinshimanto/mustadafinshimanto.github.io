@@ -1349,3 +1349,41 @@ body.loading { overflow: hidden; }
     .floating-text { font-size: 10vw !important; top: 35% !important; }
     .certifications, .education { margin-bottom: 10vh; }
 }
+
+/* ═══════════════════════════════════════
+   ── Performance & Render Optimizations ──
+   ═══════════════════════════════════════ */
+
+/* 1. Offscreen Layout Skipping (content-visibility) */
+.about,
+.projects-section,
+.certifications,
+.education,
+.skills-section,
+.recruitment-section,
+.footer {
+    content-visibility: auto;
+}
+
+.about { contain-intrinsic-size: auto 900px; }
+.projects-section { contain-intrinsic-size: auto 1400px; }
+.certifications { contain-intrinsic-size: auto 1000px; }
+.education { contain-intrinsic-size: auto 700px; }
+.skills-section { contain-intrinsic-size: auto 600px; }
+.recruitment-section { contain-intrinsic-size: auto 500px; }
+.footer { contain-intrinsic-size: auto 600px; }
+
+/* 2. Hardware Acceleration for Parallax, Animations, and Transitions (GPU layer promotion) */
+.marquee-track,
+.orb,
+.floating-text,
+.image-reveal img,
+.image-reveal video,
+.project-image-wrapper img,
+.skill-card,
+.cert-card,
+.education-card,
+.recruitment-container {
+    will-change: transform;
+    transform: translate3d(0, 0, 0);
+}

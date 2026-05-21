@@ -122,7 +122,22 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     // 4. Intro Timeline
     // ═══════════════════════════════════════
+    function initBackgroundVideo() {
+        const bgVideo = document.getElementById('bgVideo');
+        if (bgVideo) {
+            const source = document.createElement('source');
+            source.src = "https://cdn.pixabay.com/video/2026/02/02/332264_medium.mp4";
+            source.type = "video/mp4";
+            bgVideo.appendChild(source);
+            bgVideo.load();
+            bgVideo.play().catch(err => {
+                console.log("Background video autoplay failed or was prevented:", err);
+            });
+        }
+    }
+
     function runIntro() {
+        initBackgroundVideo();
         const tl = gsap.timeline({
             onComplete: () => document.body.classList.remove('loading')
         });
@@ -642,5 +657,17 @@ document.addEventListener("DOMContentLoaded", () => {
         // Start rotation loop
         setInterval(swapHeroTitle, 5000);
     }, 3000);
+
+    // ═══════════════════════════════════════
+    // 19. ResizeObserver for content-visibility
+    // ═══════════════════════════════════════
+    if (window.ResizeObserver) {
+        const ro = new ResizeObserver(() => {
+            ScrollTrigger.refresh();
+        });
+        document.querySelectorAll('.about, .projects-section, .certifications, .education, .skills-section, .recruitment-section, .footer').forEach(el => {
+            ro.observe(el);
+        });
+    }
 
 });
