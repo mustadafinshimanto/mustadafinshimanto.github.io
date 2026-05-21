@@ -170,8 +170,8 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (bgVideo) {
-        if (isSlowConnection) {
-            // Discard heavy video immediately on 2G/3G/Save-Data to prevent UI stutter
+        if (isSlowConnection || isMobile) {
+            // Discard heavy video immediately on 2G/3G/Save-Data or mobile devices to prevent UI jank
             discardVideo(bgVideo);
             videoActive = false;
             shouldPlayVideo = false;
@@ -524,29 +524,31 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
 
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / 15;
-            const rotateY = (centerX - x) / 15;
+        if (!isMobile) {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 15;
+                const rotateY = (centerX - x) / 15;
 
-            gsap.to(card, {
-                rotateX: rotateX,
-                rotateY: rotateY,
-                duration: 0.5,
-                ease: "power2.out"
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
             });
-        });
 
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                rotateX: 0, rotateY: 0,
-                duration: 0.5, ease: "power2.out"
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0, rotateY: 0,
+                    duration: 0.5, ease: "power2.out"
+                });
             });
-        });
+        }
     });
 
     // ═══════════════════════════════════════
@@ -567,30 +569,32 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         );
 
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / 20;
-            const rotateY = (centerX - x) / 20;
+        if (!isMobile) {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 20;
+                const rotateY = (centerX - x) / 20;
 
-            gsap.to(card, {
-                rotateX: rotateX,
-                rotateY: rotateY,
-                duration: 0.5,
-                ease: "power2.out",
-                transformPerspective: 1000
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    transformPerspective: 1000
+                });
             });
-        });
 
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                rotateX: 0, rotateY: 0,
-                duration: 0.5, ease: "power2.out"
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0, rotateY: 0,
+                    duration: 0.5, ease: "power2.out"
+                });
             });
-        });
+        }
     });
 
     // ═══════════════════════════════════════
@@ -598,24 +602,26 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     const magneticElements = document.querySelectorAll('.nav-cta, .massive-link, .back-to-top, .footer-links a, .recruitment-btn');
     
-    magneticElements.forEach(el => {
-        el.addEventListener('mousemove', (e) => {
-            const rect = el.getBoundingClientRect();
-            const x = e.clientX - rect.left - rect.width / 2;
-            const y = e.clientY - rect.top - rect.height / 2;
-            gsap.to(el, {
-                x: x * 0.3, y: y * 0.3,
-                duration: 0.4, ease: "power2.out"
+    if (!isMobile) {
+        magneticElements.forEach(el => {
+            el.addEventListener('mousemove', (e) => {
+                const rect = el.getBoundingClientRect();
+                const x = e.clientX - rect.left - rect.width / 2;
+                const y = e.clientY - rect.top - rect.height / 2;
+                gsap.to(el, {
+                    x: x * 0.3, y: y * 0.3,
+                    duration: 0.4, ease: "power2.out"
+                });
             });
-        });
 
-        el.addEventListener('mouseleave', () => {
-            gsap.to(el, {
-                x: 0, y: 0,
-                duration: 0.6, ease: "elastic.out(1, 0.4)"
+            el.addEventListener('mouseleave', () => {
+                gsap.to(el, {
+                    x: 0, y: 0,
+                    duration: 0.6, ease: "elastic.out(1, 0.4)"
+                });
             });
         });
-    });
+    }
 
     // ═══════════════════════════════════════
     // 11. Certifications: 3D Tilt & Lightbox
@@ -649,37 +655,39 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     certCards.forEach(card => {
-        card.addEventListener('mousemove', (e) => {
-            const rect = card.getBoundingClientRect();
-            const x = e.clientX - rect.left;
-            const y = e.clientY - rect.top;
+        if (!isMobile) {
+            card.addEventListener('mousemove', (e) => {
+                const rect = card.getBoundingClientRect();
+                const x = e.clientX - rect.left;
+                const y = e.clientY - rect.top;
 
-            // Update CSS variables for the mouse follow effect
-            card.style.setProperty('--mouse-x', `${x}px`);
-            card.style.setProperty('--mouse-y', `${y}px`);
-            // Calculate tilt based on center point
-            const centerX = rect.width / 2;
-            const centerY = rect.height / 2;
-            const rotateX = (y - centerY) / 8;
-            const rotateY = (centerX - x) / 8;
+                // Update CSS variables for the mouse follow effect
+                card.style.setProperty('--mouse-x', `${x}px`);
+                card.style.setProperty('--mouse-y', `${y}px`);
+                // Calculate tilt based on center point
+                const centerX = rect.width / 2;
+                const centerY = rect.height / 2;
+                const rotateX = (y - centerY) / 8;
+                const rotateY = (centerX - x) / 8;
 
-            gsap.to(card, {
-                rotateX: rotateX,
-                rotateY: rotateY,
-                duration: 0.5,
-                ease: "power2.out",
-                transformPerspective: 1000
+                gsap.to(card, {
+                    rotateX: rotateX,
+                    rotateY: rotateY,
+                    duration: 0.5,
+                    ease: "power2.out",
+                    transformPerspective: 1000
+                });
             });
-        });
 
-        card.addEventListener('mouseleave', () => {
-            gsap.to(card, {
-                rotateX: 0,
-                rotateY: 0,
-                duration: 0.5,
-                ease: "power2.out"
+            card.addEventListener('mouseleave', () => {
+                gsap.to(card, {
+                    rotateX: 0,
+                    rotateY: 0,
+                    duration: 0.5,
+                    ease: "power2.out"
+                });
             });
-        });
+        }
 
         // Open Lightbox
         card.addEventListener('click', () => openModal(card));
@@ -758,6 +766,7 @@ document.addEventListener("DOMContentLoaded", () => {
     let waveTween;
 
     function startHeroWave() {
+        if (isMobile) return; // Completely disable continuous wave animation on mobile to save CPU/GPU resources
         if (waveTween) waveTween.kill();
         waveTween = gsap.to('.hero-title .char', {
             y: -15,
