@@ -110,6 +110,9 @@ document.addEventListener("DOMContentLoaded", () => {
     let displayProgress = 0;
     let isFinished = false;
 
+    // Detect mobile device
+    const isMobile = window.innerWidth <= 768 || /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+
     // Detect slow connections or data-saver mode
     const isSlowConnection = !!(
         navigator.connection && (
@@ -147,6 +150,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // Reference and handle background video loading
     const bgVideo = document.getElementById('bgVideo');
     let videoActive = !!bgVideo;
+    let shouldPlayVideo = false;
 
     // Helper function to robustly discard video element and stop stream downloading
     const discardVideo = (videoEl) => {
@@ -170,14 +174,24 @@ document.addEventListener("DOMContentLoaded", () => {
             // Discard heavy video immediately on 2G/3G/Save-Data to prevent UI stutter
             discardVideo(bgVideo);
             videoActive = false;
+            shouldPlayVideo = false;
         } else {
-            bgVideo.load();
+            // Start playing immediately in the background so it is already running when the preloader slides up
+            bgVideo.play().catch(err => {
+                console.log("Early background video play was prevented/blocked, will retry on transition:", err);
+            });
+            shouldPlayVideo = true;
         }
     }
 
     // Max preloader timeout to prevent being stuck on slower connections
     const startTime = Date.now();
     const TIMEOUT = 7000;
+
+    // Only track video buffering in preloader on desktop connections that aren't slow.
+    // Mobile browsers block preloading/buffering of media until play is initiated,
+    // so we exclude it from preloader progress to prevent mobile devices from hanging.
+    const trackVideoProgress = videoActive && !isMobile;
 
     const loadInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -186,12 +200,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // 1. Font progress (20% of total load)
         const fProg = fontsLoaded ? 100 : 0;
 
-        // 2. Image progress (30% if video is active, otherwise 80%)
+        // 2. Image progress (30% if video is tracked, otherwise 80%)
         const iProg = eagerImages.length === 0 ? 100 : (imagesLoadedCount / eagerImages.length) * 100;
 
-        // 3. Video buffering progress (50% if video is active)
+        // 3. Video buffering progress (50% if video is tracked)
         let vProg = 100;
-        if (videoActive && bgVideo) {
+        if (trackVideoProgress && bgVideo) {
             if (bgVideo.readyState >= 1 && bgVideo.duration) {
                 const buffered = bgVideo.buffered;
                 if (buffered.length > 0) {
@@ -207,8 +221,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
         // Calculate weighted progress
         const FONT_WEIGHT = 0.2;
-        const IMAGE_WEIGHT = videoActive ? 0.3 : 0.8;
-        const VIDEO_WEIGHT = videoActive ? 0.5 : 0.0;
+        const IMAGE_WEIGHT = trackVideoProgress ? 0.3 : 0.8;
+        const VIDEO_WEIGHT = trackVideoProgress ? 0.5 : 0.0;
 
         let actualProgress = (fProg * FONT_WEIGHT) + (iProg * IMAGE_WEIGHT) + (vProg * VIDEO_WEIGHT);
         if (hasTimedOut) {
@@ -232,23 +246,24 @@ document.addEventListener("DOMContentLoaded", () => {
             isFinished = true;
             clearInterval(loadInterval);
 
-            // Determine if the video buffered enough to play smoothly
-            const videoBufferedEnough = vProg >= 80;
-            let playVideo = false;
-
-            if (videoActive && bgVideo) {
-                if (videoBufferedEnough && !hasTimedOut) {
-                    // Video is fully buffered and ready to play smoothly
-                    playVideo = true;
+            if (bgVideo && shouldPlayVideo) {
+                if (trackVideoProgress) {
+                    // Check if the video buffered enough to play smoothly on desktop
+                    const videoBufferedEnough = vProg >= 80;
+                    if (videoBufferedEnough && !hasTimedOut) {
+                        // Video is ready to play
+                    } else {
+                        // Discard it if it failed to buffer in time
+                        discardVideo(bgVideo);
+                        shouldPlayVideo = false;
+                    }
                 } else {
-                    // Video failed to buffer in time (slow 3G network).
-                    // Discard it to save network bandwidth and avoid CPU stuttering.
-                    discardVideo(bgVideo);
+                    // Keep the video element on mobile since we bypass pre-buffering tracking
                 }
             }
 
             setTimeout(() => {
-                runIntro(playVideo);
+                runIntro(shouldPlayVideo);
             }, 100);
         }
     }, 30);
@@ -257,78 +272,107 @@ document.addEventListener("DOMContentLoaded", () => {
     // 4. Intro Timeline
     // ═══════════════════════════════════════
     function runIntro(playVideo) {
+        // Fallback play trigger if not already playing
+        if (playVideo && bgVideo && bgVideo.parentNode) {
+            bgVideo.play().catch(err => {
+                console.log("Background video play fallback failed:", err);
+            });
+        }
+
         const tl = gsap.timeline({
             onComplete: () => {
                 document.body.classList.remove('loading');
-                // Play the video ONLY after the animations have completely finished to prevent CPU contention
-                if (playVideo && bgVideo && bgVideo.parentNode) {
-                    bgVideo.play().catch(err => {
-                        console.log("Background video play was prevented or failed:", err);
-                    });
-                }
             }
         });
 
-        // Slide preloader up
+        // Slide preloader up quickly
         tl.to('.preloader', {
             yPercent: -100,
-            duration: 1.2,
-            ease: "power4.inOut"
+            duration: 0.8,
+            ease: "power3.inOut",
+            onComplete: () => {
+                const preloader = document.querySelector('.preloader');
+                if (preloader) preloader.style.display = 'none';
+            }
         });
 
-        // Reveal background video opacity
+        // Reveal background video opacity concurrently
         tl.fromTo('.bg-video', { opacity: 0 }, {
             opacity: 0.4,
-            duration: 2,
-            ease: "power2.out"
-        }, "-=0.8");
-
-        // Reveal hero title characters with 3D cyber transitions
-        tl.fromTo('.hero-title .char', 
-            { 
-                y: "150%", 
-                opacity: 0, 
-                rotateX: -90,
-                rotateY: 45,
-                z: -200,
-                color: "#7000ff" 
-            },
-            {
-                y: "0%", 
-                opacity: 1, 
-                rotateX: 0,
-                rotateY: 0,
-                z: 0,
-                color: "#ffffff",
-                duration: 1.5,
-                stagger: {
-                    amount: 0.8,
-                    from: "random"
-                },
-                ease: "elastic.out(1, 0.4)"
-            }, "-=1.2");
-
-        // Fade in hero label
-        tl.to('.hero-label', {
-            opacity: 1, y: 0,
-            duration: 0.8,
-            ease: "power2.out"
-        }, "-=1.0");
-
-        // Fade hero footer elements
-        tl.to('.hero-footer p, .scroll-indicator', {
-            opacity: 1, y: 0,
-            duration: 0.8,
-            stagger: 0.15,
+            duration: 1.0,
             ease: "power2.out"
         }, "-=0.6");
+
+        // Reveal hero title characters
+        if (isMobile) {
+            // Smooth 2D slide-up & fade-in for mobile - starts while the preloader is sliding up
+            tl.fromTo('.hero-title .char', 
+                { 
+                    y: "25px", 
+                    opacity: 0
+                },
+                {
+                    y: "0px", 
+                    opacity: 1,
+                    duration: 0.5,
+                    stagger: 0.015,
+                    ease: "power2.out"
+                }, "-=0.7");
+        } else {
+            // Premium 3D cyber transition for desktop
+            tl.fromTo('.hero-title .char', 
+                { 
+                    y: "80px", 
+                    opacity: 0, 
+                    rotateX: -75,
+                    rotateY: 20,
+                    z: -100
+                },
+                {
+                    y: "0px", 
+                    opacity: 1, 
+                    rotateX: 0,
+                    rotateY: 0,
+                    z: 0,
+                    duration: 1.0,
+                    stagger: {
+                        amount: 0.5,
+                        from: "start"
+                    },
+                    ease: "power3.out"
+                }, "-=0.7");
+        }
+
+        // Fade in hero label (name)
+        tl.fromTo('.hero-label', 
+            { opacity: 0, y: "15px" },
+            {
+                opacity: 1, 
+                y: "0px",
+                duration: 0.5,
+                ease: "power2.out"
+            }, "-=0.5");
+
+        // Fade hero footer elements (description & scroll indicator)
+        tl.fromTo('.hero-footer p, .scroll-indicator', 
+            { opacity: 0, y: "15px" },
+            {
+                opacity: 1, 
+                y: "0px",
+                duration: 0.5,
+                stagger: 0.1,
+                ease: "power2.out"
+            }, "-=0.4");
 
         // Navbar entrance
-        tl.fromTo('.navbar', { y: -100, opacity: 0 }, {
-            y: 0, opacity: 1,
-            duration: 0.8,
-            ease: "power3.out"
-        }, "-=0.6");
+        tl.fromTo('.navbar', 
+            { y: -30, opacity: 0 }, 
+            {
+                y: 0, 
+                opacity: 1,
+                duration: 0.5,
+                ease: "power3.out"
+            }, "-=0.4");
     }
 
     // ═══════════════════════════════════════
