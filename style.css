@@ -87,7 +87,8 @@ body.loading { overflow: hidden; }
     z-index: -10;
     overflow: hidden;
     pointer-events: none;
-    background: var(--bg);
+    /* Deep space gradient — visible as a premium fallback when video is loading or absent */
+    background: radial-gradient(ellipse at 25% 55%, #041020 0%, #020810 45%, #0c0520 100%);
 }
 
 .bg-video {

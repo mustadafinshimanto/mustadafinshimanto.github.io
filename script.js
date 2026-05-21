@@ -301,27 +301,36 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         if (playVideo && bgVideo && bgVideo.parentNode) {
-            if (!isMobile) {
-                // Desktop: video has been buffering since page load — fade in on timeline.
-                tl.to('.bg-video', {
-                    opacity: 0.4,
-                    duration: 1.0,
-                    ease: "power2.out"
-                }, "-=0.6");
+            // Unified video fade-in: wait for actual frames before revealing.
+            // On desktop, preload="auto" usually has frames ready immediately;
+            // on mobile (and slow CDN), frames may arrive later.
+            // We listen for canplay/playing and fade in when frames exist.
+            // If nothing plays within 6 seconds, we discard the video entirely
+            // and the CSS ambient gradient shows as a clean fallback — no black.
+            let videoFadedIn = false;
+            const fadeInVideo = () => {
+                if (videoFadedIn) return;
+                videoFadedIn = true;
+                gsap.to('.bg-video', { opacity: 0.4, duration: 1.5, ease: "power2.out" });
+            };
+
+            // If frames are already available (desktop with good preload), show immediately
+            if (bgVideo.readyState >= 3) {
+                fadeInVideo();
             } else {
-                // Mobile: browsers do not pre-buffer video, so fading in immediately
-                // would show a black rectangle before frames arrive.
-                // Wait for the 'playing' event (real frames decoded) then fade in.
-                // A 4-second safety timeout covers browsers that never fire 'playing'.
-                let videoFadedIn = false;
-                const fadeInVideo = () => {
-                    if (videoFadedIn) return;
-                    videoFadedIn = true;
-                    gsap.to('.bg-video', { opacity: 0.4, duration: 1.5, ease: "power2.out" });
-                };
+                bgVideo.addEventListener('canplay', fadeInVideo, { once: true });
                 bgVideo.addEventListener('playing', fadeInVideo, { once: true });
-                setTimeout(fadeInVideo, 4000); // safety net
             }
+
+            // Safety timeout: if video hasn't played after 6s, give up and discard it.
+            // This prevents a black rectangle from ever being shown to the user.
+            setTimeout(() => {
+                if (!videoFadedIn) {
+                    bgVideo.removeEventListener('canplay', fadeInVideo);
+                    bgVideo.removeEventListener('playing', fadeInVideo);
+                    discardVideo(bgVideo);
+                }
+            }, 6000);
         }
 
         // Reveal hero title characters with original premium 3D cyber transitions
