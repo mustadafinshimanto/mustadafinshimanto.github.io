@@ -101,7 +101,7 @@ document.addEventListener("DOMContentLoaded", () => {
     splitText('[data-split]');
 
     // ═══════════════════════════════════════
-    // 3. Real Asset Preloader
+    // 3. Real Asset Preloader with Adaptive Connection Fallbacks
     // ═══════════════════════════════════════
     const counterEl = document.querySelector('.preloader-counter');
     const barEl = document.querySelector('.preloader-bar');
@@ -109,6 +109,14 @@ document.addEventListener("DOMContentLoaded", () => {
     let targetProgress = 0;
     let displayProgress = 0;
     let isFinished = false;
+
+    // Detect slow connections or data-saver mode
+    const isSlowConnection = !!(
+        navigator.connection && (
+            navigator.connection.saveData || 
+            ['slow-2g', '2g', '3g'].includes(navigator.connection.effectiveType)
+        )
+    );
 
     // Track fonts loading
     let fontsLoaded = false;
@@ -136,10 +144,20 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Reference and load the background video
+    // Reference and handle background video loading
     const bgVideo = document.getElementById('bgVideo');
+    let videoActive = !!bgVideo;
+
     if (bgVideo) {
-        bgVideo.load();
+        if (isSlowConnection) {
+            // Discard heavy video immediately on 2G/3G/Save-Data to prevent UI stutter
+            bgVideo.removeAttribute('src');
+            bgVideo.load();
+            bgVideo.remove();
+            videoActive = false;
+        } else {
+            bgVideo.load();
+        }
     }
 
     // Max preloader timeout to prevent being stuck on slower connections
@@ -153,12 +171,12 @@ document.addEventListener("DOMContentLoaded", () => {
         // 1. Font progress (20% of total load)
         const fProg = fontsLoaded ? 100 : 0;
 
-        // 2. Image progress (30% of total load)
+        // 2. Image progress (30% if video is active, otherwise 80%)
         const iProg = eagerImages.length === 0 ? 100 : (imagesLoadedCount / eagerImages.length) * 100;
 
-        // 3. Video buffering progress (50% of total load)
+        // 3. Video buffering progress (50% if video is active)
         let vProg = 100;
-        if (bgVideo) {
+        if (videoActive && bgVideo) {
             if (bgVideo.readyState >= 1 && bgVideo.duration) {
                 const buffered = bgVideo.buffered;
                 if (buffered.length > 0) {
@@ -172,10 +190,10 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         }
 
-        // Apply weights
+        // Calculate weighted progress
         const FONT_WEIGHT = 0.2;
-        const IMAGE_WEIGHT = 0.3;
-        const VIDEO_WEIGHT = 0.5;
+        const IMAGE_WEIGHT = videoActive ? 0.3 : 0.8;
+        const VIDEO_WEIGHT = videoActive ? 0.5 : 0.0;
 
         let actualProgress = (fProg * FONT_WEIGHT) + (iProg * IMAGE_WEIGHT) + (vProg * VIDEO_WEIGHT);
         if (hasTimedOut) {
@@ -199,23 +217,43 @@ document.addEventListener("DOMContentLoaded", () => {
             isFinished = true;
             clearInterval(loadInterval);
 
-            // Start video playback exactly when display progress completes
-            if (bgVideo) {
-                bgVideo.play().catch(err => {
-                    console.log("Background video play was prevented or failed:", err);
-                });
+            // Determine if the video buffered enough to play smoothly
+            const videoBufferedEnough = vProg >= 80;
+            let playVideo = false;
+
+            if (videoActive && bgVideo) {
+                if (videoBufferedEnough && !hasTimedOut) {
+                    // Video is fully buffered and ready to play smoothly
+                    playVideo = true;
+                } else {
+                    // Video failed to buffer in time (slow 3G network).
+                    // Discard it to save network bandwidth and avoid CPU stuttering.
+                    bgVideo.removeAttribute('src');
+                    bgVideo.load();
+                    bgVideo.remove();
+                }
             }
 
-            setTimeout(runIntro, 100);
+            setTimeout(() => {
+                runIntro(playVideo);
+            }, 100);
         }
     }, 30);
 
     // ═══════════════════════════════════════
     // 4. Intro Timeline
     // ═══════════════════════════════════════
-    function runIntro() {
+    function runIntro(playVideo) {
         const tl = gsap.timeline({
-            onComplete: () => document.body.classList.remove('loading')
+            onComplete: () => {
+                document.body.classList.remove('loading');
+                // Play the video ONLY after the animations have completely finished to prevent CPU contention
+                if (playVideo && bgVideo && bgVideo.parentNode) {
+                    bgVideo.play().catch(err => {
+                        console.log("Background video play was prevented or failed:", err);
+                    });
+                }
+            }
         });
 
         // Slide preloader up
