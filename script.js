@@ -364,6 +364,50 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ═══════════════════════════════════════
+    // 13.5. Education cards tilt & stagger
+    // ═══════════════════════════════════════
+    gsap.utils.toArray('.education-card').forEach((card, i) => {
+        gsap.fromTo(card,
+            { opacity: 0, y: 50, scale: 0.95 },
+            {
+                opacity: 1, y: 0, scale: 1,
+                duration: 0.8,
+                delay: i * 0.1,
+                ease: "power3.out",
+                scrollTrigger: {
+                    trigger: card,
+                    start: "top 90%"
+                }
+            }
+        );
+
+        card.addEventListener('mousemove', (e) => {
+            const rect = card.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+            const centerX = rect.width / 2;
+            const centerY = rect.height / 2;
+            const rotateX = (y - centerY) / 20;
+            const rotateY = (centerX - x) / 20;
+
+            gsap.to(card, {
+                rotateX: rotateX,
+                rotateY: rotateY,
+                duration: 0.5,
+                ease: "power2.out",
+                transformPerspective: 1000
+            });
+        });
+
+        card.addEventListener('mouseleave', () => {
+            gsap.to(card, {
+                rotateX: 0, rotateY: 0,
+                duration: 0.5, ease: "power2.out"
+            });
+        });
+    });
+
+    // ═══════════════════════════════════════
     // 14. Magnetic Effects
     // ═══════════════════════════════════════
     const magneticElements = document.querySelectorAll('.nav-cta, .massive-link, .back-to-top, .footer-links a');
