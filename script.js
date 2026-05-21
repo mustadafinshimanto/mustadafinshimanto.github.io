@@ -170,13 +170,15 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (bgVideo) {
-        if (isSlowConnection || isMobile) {
-            // Discard heavy video immediately on 2G/3G/Save-Data or mobile devices to prevent UI jank
+        if (isSlowConnection) {
+            // Discard heavy video only on 2G/3G/Save-Data connections to prevent stutter.
+            // Mobile devices are kept — they support muted autoplay via the playsinline attribute.
             discardVideo(bgVideo);
             videoActive = false;
             shouldPlayVideo = false;
         } else {
-            // Start playing immediately in the background so it is already running when the preloader slides up
+            // Start playing immediately on both desktop and mobile so the video is
+            // already running when the preloader slides away.
             bgVideo.play().catch(err => {
                 console.log("Early background video play was prevented/blocked, will retry on transition:", err);
             });
@@ -770,9 +772,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function swapHeroTitle() {
         if (waveTween) waveTween.kill();
-        // Reset all title characters to baseline before transitioning to avoid layout/animation conflicts
-        gsap.set('.hero-title .char', { y: 0, color: "#ffffff", textShadow: "none" });
-        // Set overflow to hidden for mask effect during transition
+        // Reset ONLY lines 1 & 2 characters to baseline — line 3 ("EXPERT") is static
+        // and should not be snapped white, which would cause a visible flash on every swap.
+        gsap.set('#titleLine1 .char, #titleLine2 .char', { y: 0, color: "#ffffff", textShadow: "none" });
+        // Set overflow to hidden for the sliding mask effect during transition
         gsap.set('.line-wrap', { overflow: 'hidden' });
 
         currentTitleIndex = (currentTitleIndex + 1) % titles.length;
