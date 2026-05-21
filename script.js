@@ -101,43 +101,119 @@ document.addEventListener("DOMContentLoaded", () => {
     splitText('[data-split]');
 
     // ═══════════════════════════════════════
-    // 3. Preloader
+    // 3. Real Asset Preloader
     // ═══════════════════════════════════════
     const counterEl = document.querySelector('.preloader-counter');
     const barEl = document.querySelector('.preloader-bar');
-    let progress = 0;
+    
+    let targetProgress = 0;
+    let displayProgress = 0;
+    let isFinished = false;
+
+    // Track fonts loading
+    let fontsLoaded = false;
+    if (document.fonts) {
+        document.fonts.ready.then(() => {
+            fontsLoaded = true;
+        }).catch(() => {
+            fontsLoaded = true;
+        });
+    } else {
+        fontsLoaded = true;
+    }
+
+    // Track non-lazy critical images loading
+    const eagerImages = Array.from(document.querySelectorAll('img:not([loading="lazy"])'));
+    let imagesLoadedCount = 0;
+    if (eagerImages.length > 0) {
+        eagerImages.forEach(img => {
+            if (img.complete) {
+                imagesLoadedCount++;
+            } else {
+                img.addEventListener('load', () => { imagesLoadedCount++; });
+                img.addEventListener('error', () => { imagesLoadedCount++; }); // don't block on error
+            }
+        });
+    }
+
+    // Reference and load the background video
+    const bgVideo = document.getElementById('bgVideo');
+    if (bgVideo) {
+        bgVideo.load();
+    }
+
+    // Max preloader timeout to prevent being stuck on slower connections
+    const startTime = Date.now();
+    const TIMEOUT = 7000;
 
     const loadInterval = setInterval(() => {
-        progress += Math.floor(Math.random() * 20) + 15;
-        if (progress > 100) progress = 100;
-        counterEl.textContent = progress;
-        barEl.style.width = progress + '%';
+        const elapsed = Date.now() - startTime;
+        const hasTimedOut = elapsed >= TIMEOUT;
 
-        if (progress === 100) {
-            clearInterval(loadInterval);
-            setTimeout(runIntro, 50);
+        // 1. Font progress (20% of total load)
+        const fProg = fontsLoaded ? 100 : 0;
+
+        // 2. Image progress (30% of total load)
+        const iProg = eagerImages.length === 0 ? 100 : (imagesLoadedCount / eagerImages.length) * 100;
+
+        // 3. Video buffering progress (50% of total load)
+        let vProg = 100;
+        if (bgVideo) {
+            if (bgVideo.readyState >= 1 && bgVideo.duration) {
+                const buffered = bgVideo.buffered;
+                if (buffered.length > 0) {
+                    const bufferedEnd = buffered.end(buffered.length - 1);
+                    vProg = Math.min((bufferedEnd / bgVideo.duration) * 100, 100);
+                } else {
+                    vProg = 0;
+                }
+            } else {
+                vProg = 0;
+            }
         }
-    }, 20);
+
+        // Apply weights
+        const FONT_WEIGHT = 0.2;
+        const IMAGE_WEIGHT = 0.3;
+        const VIDEO_WEIGHT = 0.5;
+
+        let actualProgress = (fProg * FONT_WEIGHT) + (iProg * IMAGE_WEIGHT) + (vProg * VIDEO_WEIGHT);
+        if (hasTimedOut) {
+            actualProgress = 100;
+        }
+
+        targetProgress = Math.round(actualProgress);
+
+        // Interpolate display progress for premium smooth transition
+        const diff = targetProgress - displayProgress;
+        if (diff > 0) {
+            displayProgress += Math.ceil(diff * 0.08); // smooth catch-up
+        }
+
+        if (displayProgress > 100) displayProgress = 100;
+
+        counterEl.textContent = displayProgress;
+        barEl.style.width = displayProgress + '%';
+
+        if (displayProgress === 100 && !isFinished) {
+            isFinished = true;
+            clearInterval(loadInterval);
+
+            // Start video playback exactly when display progress completes
+            if (bgVideo) {
+                bgVideo.play().catch(err => {
+                    console.log("Background video play was prevented or failed:", err);
+                });
+            }
+
+            setTimeout(runIntro, 100);
+        }
+    }, 30);
 
     // ═══════════════════════════════════════
     // 4. Intro Timeline
     // ═══════════════════════════════════════
-    function initBackgroundVideo() {
-        const bgVideo = document.getElementById('bgVideo');
-        if (bgVideo) {
-            const source = document.createElement('source');
-            source.src = "https://cdn.pixabay.com/video/2026/02/02/332264_medium.mp4";
-            source.type = "video/mp4";
-            bgVideo.appendChild(source);
-            bgVideo.load();
-            bgVideo.play().catch(err => {
-                console.log("Background video autoplay failed or was prevented:", err);
-            });
-        }
-    }
-
     function runIntro() {
-        initBackgroundVideo();
         const tl = gsap.timeline({
             onComplete: () => document.body.classList.remove('loading')
         });
