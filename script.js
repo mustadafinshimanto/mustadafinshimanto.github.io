@@ -207,9 +207,9 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     // 6. Marquee speed effect on scroll
     // ═══════════════════════════════════════
-    const marqueeTrack = document.querySelector('.marquee-track');
-    if (marqueeTrack) {
-        gsap.to(marqueeTrack, {
+    const marqueeWrapper = document.querySelector('.marquee-wrapper');
+    if (marqueeWrapper) {
+        gsap.to(marqueeWrapper, {
             scrollTrigger: {
                 trigger: '.marquee-section',
                 start: "top bottom",
@@ -399,21 +399,23 @@ document.addEventListener("DOMContentLoaded", () => {
     // Open Lightbox helper
     const openModal = (card) => {
         lastActiveElement = document.activeElement;
-        const imgSrc = card.querySelector('img').src;
-        modalImg.src = imgSrc;
-        modal.classList.add('active');
-        document.body.style.overflow = 'hidden';
-        
-        // Focus the close button
-        if (modalClose) modalClose.focus();
+        const openLightbox = () => {
+            const imgSrc = card.querySelector('img').src;
+            modalImg.src = imgSrc;
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+            modalClose?.focus();
+            
+            // Animation for modal contents
+            gsap.from("#modalImage", {
+                scale: 0.8,
+                opacity: 0,
+                duration: 0.4,
+                ease: "back.out(1.7)"
+            });
+        };
 
-        // Animation for modal contents
-        gsap.from("#modalImage", {
-            scale: 0.8,
-            opacity: 0,
-            duration: 0.4,
-            ease: "back.out(1.7)"
-        });
+        openLightbox();
     };
 
     certCards.forEach(card => {
@@ -543,6 +545,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function swapHeroTitle() {
         if (waveTween) waveTween.kill();
+        // Reset all title characters to baseline before transitioning to avoid layout/animation conflicts
+        gsap.set('.hero-title .char', { y: 0, color: "#ffffff", textShadow: "none" });
 
         currentTitleIndex = (currentTitleIndex + 1) % titles.length;
         const nextTitle = titles[currentTitleIndex];

@@ -338,6 +338,11 @@ body.loading { overflow: hidden; }
     background: var(--bg-light);
 }
 
+.marquee-wrapper {
+    overflow: hidden;
+    width: 100%;
+}
+
 .marquee-track {
     display: flex; width: max-content;
     animation: marquee 25s linear infinite;
