@@ -100,7 +100,7 @@ body.loading { overflow: hidden; }
     height: auto;
     transform: translate(-50%, -50%);
     object-fit: cover;
-    opacity: 0.4;
+    opacity: 0;  /* starts invisible; GSAP fades this in to 0.4 once video frames are ready */
     filter: saturate(1.2) contrast(1.1);
 }
 

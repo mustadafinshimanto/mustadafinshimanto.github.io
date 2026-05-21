@@ -300,33 +300,28 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        if (!isMobile) {
-            // Desktop: video was already buffering before the preloader finished,
-            // so it is safe to fade it in on the timeline right now.
-            tl.fromTo('.bg-video', { opacity: 0 }, {
-                opacity: 0.4,
-                duration: 1.0,
-                ease: "power2.out"
-            }, "-=0.6");
-        } else if (playVideo && bgVideo && bgVideo.parentNode) {
-            // Mobile: browsers don't pre-buffer video, so fading in immediately
-            // shows a solid black rectangle. Instead, keep the video invisible
-            // and fade it in ONLY once the browser fires the 'playing' event,
-            // which means actual decoded frames are ready to display.
-            // If the video never plays, opacity stays 0 and the ambient orbs
-            // gradient provides the background.
-            gsap.set('.bg-video', { opacity: 0 });
-            const fadeInOnPlay = () => {
-                gsap.to('.bg-video', { opacity: 0.4, duration: 1.5, ease: "power2.out" });
-            };
-            bgVideo.addEventListener('playing', fadeInOnPlay, { once: true });
-            // Safety timeout: if video hasn't played after 5s, fade in anyway
-            // (browser may not fire 'playing' on some mobile browsers)
-            setTimeout(() => {
-                if (bgVideo && bgVideo.parentNode && parseFloat(bgVideo.style.opacity || 0) < 0.1) {
-                    fadeInOnPlay();
-                }
-            }, 5000);
+        if (playVideo && bgVideo && bgVideo.parentNode) {
+            if (!isMobile) {
+                // Desktop: video has been buffering since page load — fade in on timeline.
+                tl.to('.bg-video', {
+                    opacity: 0.4,
+                    duration: 1.0,
+                    ease: "power2.out"
+                }, "-=0.6");
+            } else {
+                // Mobile: browsers do not pre-buffer video, so fading in immediately
+                // would show a black rectangle before frames arrive.
+                // Wait for the 'playing' event (real frames decoded) then fade in.
+                // A 4-second safety timeout covers browsers that never fire 'playing'.
+                let videoFadedIn = false;
+                const fadeInVideo = () => {
+                    if (videoFadedIn) return;
+                    videoFadedIn = true;
+                    gsap.to('.bg-video', { opacity: 0.4, duration: 1.5, ease: "power2.out" });
+                };
+                bgVideo.addEventListener('playing', fadeInVideo, { once: true });
+                setTimeout(fadeInVideo, 4000); // safety net
+            }
         }
 
         // Reveal hero title characters with original premium 3D cyber transitions
