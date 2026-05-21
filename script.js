@@ -282,6 +282,8 @@ document.addEventListener("DOMContentLoaded", () => {
         const tl = gsap.timeline({
             onComplete: () => {
                 document.body.classList.remove('loading');
+                // Ensure text is not clipped during continuous wave animation
+                gsap.set('.line-wrap', { overflow: 'visible' });
             }
         });
 
@@ -303,45 +305,30 @@ document.addEventListener("DOMContentLoaded", () => {
             ease: "power2.out"
         }, "-=0.6");
 
-        // Reveal hero title characters
-        if (isMobile) {
-            // Smooth 2D slide-up & fade-in for mobile - starts while the preloader is sliding up
-            tl.fromTo('.hero-title .char', 
-                { 
-                    y: "25px", 
-                    opacity: 0
+        // Reveal hero title characters with original premium 3D cyber transitions
+        tl.fromTo('.hero-title .char', 
+            { 
+                y: "150%", 
+                opacity: 0, 
+                rotateX: -90,
+                rotateY: 45,
+                z: -200,
+                color: "#7000ff" 
+            },
+            {
+                y: "0%", 
+                opacity: 1, 
+                rotateX: 0,
+                rotateY: 0,
+                z: 0,
+                color: "#ffffff",
+                duration: 1.5,
+                stagger: {
+                    amount: 0.8,
+                    from: "random"
                 },
-                {
-                    y: "0px", 
-                    opacity: 1,
-                    duration: 0.5,
-                    stagger: 0.015,
-                    ease: "power2.out"
-                }, "-=0.7");
-        } else {
-            // Premium 3D cyber transition for desktop
-            tl.fromTo('.hero-title .char', 
-                { 
-                    y: "80px", 
-                    opacity: 0, 
-                    rotateX: -75,
-                    rotateY: 20,
-                    z: -100
-                },
-                {
-                    y: "0px", 
-                    opacity: 1, 
-                    rotateX: 0,
-                    rotateY: 0,
-                    z: 0,
-                    duration: 1.0,
-                    stagger: {
-                        amount: 0.5,
-                        from: "start"
-                    },
-                    ease: "power3.out"
-                }, "-=0.7");
-        }
+                ease: "elastic.out(1, 0.4)"
+            }, "-=0.7");
 
         // Fade in hero label (name)
         tl.fromTo('.hero-label', 
@@ -766,7 +753,6 @@ document.addEventListener("DOMContentLoaded", () => {
     let waveTween;
 
     function startHeroWave() {
-        if (isMobile) return; // Completely disable continuous wave animation on mobile to save CPU/GPU resources
         if (waveTween) waveTween.kill();
         waveTween = gsap.to('.hero-title .char', {
             y: -15,
@@ -786,6 +772,8 @@ document.addEventListener("DOMContentLoaded", () => {
         if (waveTween) waveTween.kill();
         // Reset all title characters to baseline before transitioning to avoid layout/animation conflicts
         gsap.set('.hero-title .char', { y: 0, color: "#ffffff", textShadow: "none" });
+        // Set overflow to hidden for mask effect during transition
+        gsap.set('.line-wrap', { overflow: 'hidden' });
 
         currentTitleIndex = (currentTitleIndex + 1) % titles.length;
         const nextTitle = titles[currentTitleIndex];
@@ -815,7 +803,11 @@ document.addEventListener("DOMContentLoaded", () => {
                         duration: 0.8,
                         stagger: 0.05,
                         ease: "power2.out",
-                        onComplete: startHeroWave
+                        onComplete: () => {
+                            startHeroWave();
+                            // Ensure text is not clipped during continuous wave animation
+                            gsap.set('.line-wrap', { overflow: 'visible' });
+                        }
                     }
                 );
             }

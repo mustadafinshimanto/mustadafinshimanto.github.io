@@ -285,7 +285,10 @@ body.loading { overflow: hidden; }
 
 .line-wrap {
     overflow: hidden;
-    padding-bottom: 5px;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    margin-top: -15px;
+    margin-bottom: -15px;
 }
 
 .line-wrap.indent { padding-left: 10vw; }
@@ -1055,7 +1058,12 @@ body.loading { overflow: hidden; }
 @media screen and (max-width: 600px) {
     .spacer { padding: 8vh 5vw; }
     .hero-title { font-size: 11vw; line-height: 1.1; margin-top: 10vh; }
-    .hero-title .line-wrap { padding-bottom: 0px; }
+    .hero-title .line-wrap {
+        padding-top: 10px;
+        padding-bottom: 10px;
+        margin-top: -10px;
+        margin-bottom: -10px;
+    }
     .line-wrap.indent { padding-left: 0; }
     .hero-footer { margin-top: auto; }
     /* Security and Innovation labels & Image Sections */
