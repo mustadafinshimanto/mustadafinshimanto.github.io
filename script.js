@@ -34,6 +34,12 @@ document.addEventListener("DOMContentLoaded", () => {
         backToTop.addEventListener('click', () => {
             lenis.scrollTo(0, { duration: 1.5 });
         });
+        backToTop.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                backToTop.click();
+            }
+        });
     }
 
     gsap.registerPlugin(ScrollTrigger);
@@ -67,6 +73,29 @@ document.addEventListener("DOMContentLoaded", () => {
                 el.appendChild(span);
             });
         });
+    };
+
+    const updateSplitText = (el, newText) => {
+        const chars = newText.split('');
+        const existingSpans = el.querySelectorAll('.char');
+        
+        for (let i = 0; i < Math.max(chars.length, existingSpans.length); i++) {
+            if (i < chars.length) {
+                const char = chars[i] === ' ' ? '\u00A0' : chars[i];
+                if (i < existingSpans.length) {
+                    const span = existingSpans[i];
+                    span.innerText = char;
+                    gsap.set(span, { clearProps: "all" });
+                } else {
+                    const span = document.createElement('span');
+                    span.className = 'char';
+                    span.innerText = char;
+                    el.appendChild(span);
+                }
+            } else {
+                existingSpans[i].remove();
+            }
+        }
     };
 
     splitText('[data-split]');
@@ -365,6 +394,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const modal = document.getElementById('certModal');
     const modalImg = document.getElementById('modalImage');
     const modalClose = document.getElementById('modalClose');
+    let lastActiveElement = null;
+
+    // Open Lightbox helper
+    const openModal = (card) => {
+        lastActiveElement = document.activeElement;
+        const imgSrc = card.querySelector('img').src;
+        modalImg.src = imgSrc;
+        modal.classList.add('active');
+        document.body.style.overflow = 'hidden';
+        
+        // Focus the close button
+        if (modalClose) modalClose.focus();
+
+        // Animation for modal contents
+        gsap.from("#modalImage", {
+            scale: 0.8,
+            opacity: 0,
+            duration: 0.4,
+            ease: "back.out(1.7)"
+        });
+    };
 
     certCards.forEach(card => {
         card.addEventListener('mousemove', (e) => {
@@ -400,19 +450,14 @@ document.addEventListener("DOMContentLoaded", () => {
         });
 
         // Open Lightbox
-        card.addEventListener('click', () => {
-            const imgSrc = card.querySelector('img').src;
-            modalImg.src = imgSrc;
-            modal.classList.add('active');
-            document.body.style.overflow = 'hidden';
-            
-            // Animation for modal contents
-            gsap.from("#modalImage", {
-                scale: 0.8,
-                opacity: 0,
-                duration: 0.4,
-                ease: "back.out(1.7)"
-            });
+        card.addEventListener('click', () => openModal(card));
+
+        // Keyboard activation
+        card.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter' || e.key === ' ') {
+                e.preventDefault();
+                openModal(card);
+            }
         });
     });
 
@@ -420,6 +465,9 @@ document.addEventListener("DOMContentLoaded", () => {
     const closeModalFunc = () => {
         modal.classList.remove('active');
         document.body.style.overflow = '';
+        if (lastActiveElement) {
+            lastActiveElement.focus();
+        }
     };
 
     modalClose?.addEventListener('click', closeModalFunc);
@@ -444,7 +492,9 @@ document.addEventListener("DOMContentLoaded", () => {
         menuToggle.addEventListener('click', () => {
             navMenu.classList.toggle('active');
             const icon = menuToggle.querySelector('i');
-            if (navMenu.classList.contains('active')) {
+            const isActive = navMenu.classList.contains('active');
+            menuToggle.setAttribute('aria-expanded', isActive ? 'true' : 'false');
+            if (isActive) {
                 icon.classList.remove('fa-bars');
                 icon.classList.add('fa-xmark');
             } else {
@@ -457,6 +507,7 @@ document.addEventListener("DOMContentLoaded", () => {
         navMenu.querySelectorAll('a').forEach(link => {
             link.addEventListener('click', () => {
                 navMenu.classList.remove('active');
+                menuToggle.setAttribute('aria-expanded', 'false');
                 const icon = menuToggle.querySelector('i');
                 icon.classList.remove('fa-xmark');
                 icon.classList.add('fa-bars');
@@ -469,8 +520,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     const titles = [
         { l1: "Vibe", l2: "Coding" },
-        { l1: "Cyber", l2: "Security" },
-        { l1: "Vibe", l2: "Coding" }
+        { l1: "Cyber", l2: "Security" }
     ];
     let currentTitleIndex = 0;
     let waveTween;
@@ -492,6 +542,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     function swapHeroTitle() {
+        if (waveTween) waveTween.kill();
+
         currentTitleIndex = (currentTitleIndex + 1) % titles.length;
         const nextTitle = titles[currentTitleIndex];
 
@@ -500,13 +552,9 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const tl = gsap.timeline({
             onComplete: () => {
-                // Update text and re-split
-                line1.innerText = nextTitle.l1;
-                line2.innerText = nextTitle.l2;
-                
-                // We only need to re-split the specific lines that changed
-                splitText('#titleLine1');
-                splitText('#titleLine2');
+                // Update text using the in-place split text recycling
+                updateSplitText(line1, nextTitle.l1);
+                updateSplitText(line2, nextTitle.l2);
 
                 // Reveal animation for new characters
                 gsap.fromTo(['#titleLine1 .char', '#titleLine2 .char'], 
