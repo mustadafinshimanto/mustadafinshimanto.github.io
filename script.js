@@ -148,12 +148,27 @@ document.addEventListener("DOMContentLoaded", () => {
     const bgVideo = document.getElementById('bgVideo');
     let videoActive = !!bgVideo;
 
+    // Helper function to robustly discard video element and stop stream downloading
+    const discardVideo = (videoEl) => {
+        if (!videoEl) return;
+        // Strip the src attribute on the video itself
+        videoEl.removeAttribute('src');
+        // Clear all <source> child elements
+        while (videoEl.firstChild) {
+            videoEl.removeChild(videoEl.firstChild);
+        }
+        // Force the video element to reload to clear references & buffer
+        try {
+            videoEl.load();
+        } catch (e) {}
+        // Remove from DOM
+        videoEl.remove();
+    };
+
     if (bgVideo) {
         if (isSlowConnection) {
             // Discard heavy video immediately on 2G/3G/Save-Data to prevent UI stutter
-            bgVideo.removeAttribute('src');
-            bgVideo.load();
-            bgVideo.remove();
+            discardVideo(bgVideo);
             videoActive = false;
         } else {
             bgVideo.load();
@@ -228,9 +243,7 @@ document.addEventListener("DOMContentLoaded", () => {
                 } else {
                     // Video failed to buffer in time (slow 3G network).
                     // Discard it to save network bandwidth and avoid CPU stuttering.
-                    bgVideo.removeAttribute('src');
-                    bgVideo.load();
-                    bgVideo.remove();
+                    discardVideo(bgVideo);
                 }
             }
 
