@@ -410,7 +410,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     // 14. Magnetic Effects
     // ═══════════════════════════════════════
-    const magneticElements = document.querySelectorAll('.nav-cta, .massive-link, .back-to-top, .footer-links a');
+    const magneticElements = document.querySelectorAll('.nav-cta, .massive-link, .back-to-top, .footer-links a, .recruitment-btn');
     
     magneticElements.forEach(el => {
         el.addEventListener('mousemove', (e) => {
