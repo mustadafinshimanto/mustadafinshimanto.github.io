@@ -1,6 +1,6 @@
 # Mustadafin Shimanto — Personal Portfolio
 
-Welcome to the source repository of my personal portfolio website. This site exhibits a high-end, responsive cyber-themed aesthetic, showcasing my experience transitioning from defensive cybersecurity to designing vibe-coded intelligent systems.
+Welcome to the source repository of my personal portfolio website. This site exhibits a high-end, responsive cyber-themed aesthetic, showcasing my experience as an AI-Native Full-Stack Software Developer and Security Engineer, building production applications across Python/Django, Laravel, Android, Flutter, and more.
 
 Live site: [https://mustadafinshimanto.github.io/](https://mustadafinshimanto.github.io/)
 
@@ -50,32 +50,7 @@ Live site: [https://mustadafinshimanto.github.io/](https://mustadafinshimanto.gi
 ## ⚙️ Performance & Accessibility Optimizations
 
 ### 1. High-Performance Text Splitting Loop
-The hero title features a dynamic word rotation ("Vibe Coding" ↔ "Cyber Security"). Originally, this was done by recreating DOM nodes from scratch every 5 seconds. The current implementation recycles the existing character `<span>` tags in-place:
-```javascript
-// Updates existing text nodes in-place rather than rebuilding HTML
-const updateSplitText = (el, newText) => {
-    const chars = newText.split('');
-    const existingSpans = el.querySelectorAll('.char');
-    
-    for (let i = 0; i < Math.max(chars.length, existingSpans.length); i++) {
-        if (i < chars.length) {
-            const char = chars[i] === ' ' ? '\u00A0' : chars[i];
-            if (i < existingSpans.length) {
-                const span = existingSpans[i];
-                span.innerText = char;
-                gsap.set(span, { clearProps: "all" });
-            } else {
-                const span = document.createElement('span');
-                span.className = 'char';
-                span.innerText = char;
-                el.appendChild(span);
-            }
-        } else {
-            existingSpans[i].remove();
-        }
-    }
-};
-```
+The hero title features a dynamic word rotation ("Full-Stack / AI-Native" ↔ "Cyber / Security"). The current implementation recycles the existing character `<span>` tags in-place for zero DOM thrashing.
 
 ### 2. Full Keyboard Navigation Support
 All card triggers and back-to-top buttons support tab indexing and activation triggers:
@@ -84,7 +59,10 @@ All card triggers and back-to-top buttons support tab indexing and activation tr
 - Modal focus restoration logic saves the triggering element and returns focus to it when the modal is closed.
 
 ### 3. Image Lazy Loading
-Images below the fold are loaded asynchronously using native browser lazy loading (`loading="lazy"`), boosting initial lighthouse metrics and reducing mobile bandwidth consumption.
+Images below the fold are loaded asynchronously using native browser lazy loading (`loading="lazy"`), boosting initial Lighthouse metrics and reducing mobile bandwidth consumption.
+
+### 4. Lightweight Ambient Background
+Pure CSS animated gradient background with ambient orbs — zero video downloads, zero bandwidth cost.
 
 ---
 

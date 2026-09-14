@@ -147,53 +147,9 @@ document.addEventListener("DOMContentLoaded", () => {
         });
     }
 
-    // Reference and handle background video loading
-    const bgVideo = document.getElementById('bgVideo');
-    let videoActive = !!bgVideo;
-    let shouldPlayVideo = false;
-
-    // Helper function to robustly discard video element and stop stream downloading
-    const discardVideo = (videoEl) => {
-        if (!videoEl) return;
-        // Strip the src attribute on the video itself
-        videoEl.removeAttribute('src');
-        // Clear all <source> child elements
-        while (videoEl.firstChild) {
-            videoEl.removeChild(videoEl.firstChild);
-        }
-        // Force the video element to reload to clear references & buffer
-        try {
-            videoEl.load();
-        } catch (e) {}
-        // Remove from DOM
-        videoEl.remove();
-    };
-
-    if (bgVideo) {
-        if (isSlowConnection) {
-            // Discard heavy video only on 2G/3G/Save-Data connections to prevent stutter.
-            // Mobile devices are kept — they support muted autoplay via the playsinline attribute.
-            discardVideo(bgVideo);
-            videoActive = false;
-            shouldPlayVideo = false;
-        } else {
-            // Start playing immediately on both desktop and mobile so the video is
-            // already running when the preloader slides away.
-            bgVideo.play().catch(err => {
-                console.log("Early background video play was prevented/blocked, will retry on transition:", err);
-            });
-            shouldPlayVideo = true;
-        }
-    }
-
     // Max preloader timeout to prevent being stuck on slower connections
     const startTime = Date.now();
-    const TIMEOUT = 7000;
-
-    // Only track video buffering in preloader on desktop connections that aren't slow.
-    // Mobile browsers block preloading/buffering of media until play is initiated,
-    // so we exclude it from preloader progress to prevent mobile devices from hanging.
-    const trackVideoProgress = videoActive && !isMobile;
+    const TIMEOUT = 5000;
 
     const loadInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
@@ -202,31 +158,14 @@ document.addEventListener("DOMContentLoaded", () => {
         // 1. Font progress (20% of total load)
         const fProg = fontsLoaded ? 100 : 0;
 
-        // 2. Image progress (30% if video is tracked, otherwise 80%)
+        // 2. Image progress (80% of total load)
         const iProg = eagerImages.length === 0 ? 100 : (imagesLoadedCount / eagerImages.length) * 100;
-
-        // 3. Video buffering progress (50% if video is tracked)
-        let vProg = 100;
-        if (trackVideoProgress && bgVideo) {
-            if (bgVideo.readyState >= 1 && bgVideo.duration) {
-                const buffered = bgVideo.buffered;
-                if (buffered.length > 0) {
-                    const bufferedEnd = buffered.end(buffered.length - 1);
-                    vProg = Math.min((bufferedEnd / bgVideo.duration) * 100, 100);
-                } else {
-                    vProg = 0;
-                }
-            } else {
-                vProg = 0;
-            }
-        }
 
         // Calculate weighted progress
         const FONT_WEIGHT = 0.2;
-        const IMAGE_WEIGHT = trackVideoProgress ? 0.3 : 0.8;
-        const VIDEO_WEIGHT = trackVideoProgress ? 0.5 : 0.0;
+        const IMAGE_WEIGHT = 0.8;
 
-        let actualProgress = (fProg * FONT_WEIGHT) + (iProg * IMAGE_WEIGHT) + (vProg * VIDEO_WEIGHT);
+        let actualProgress = (fProg * FONT_WEIGHT) + (iProg * IMAGE_WEIGHT);
         if (hasTimedOut) {
             actualProgress = 100;
         }
@@ -248,24 +187,8 @@ document.addEventListener("DOMContentLoaded", () => {
             isFinished = true;
             clearInterval(loadInterval);
 
-            if (bgVideo && shouldPlayVideo) {
-                if (trackVideoProgress) {
-                    // Check if the video buffered enough to play smoothly on desktop
-                    const videoBufferedEnough = vProg >= 80;
-                    if (videoBufferedEnough && !hasTimedOut) {
-                        // Video is ready to play
-                    } else {
-                        // Discard it if it failed to buffer in time
-                        discardVideo(bgVideo);
-                        shouldPlayVideo = false;
-                    }
-                } else {
-                    // Keep the video element on mobile since we bypass pre-buffering tracking
-                }
-            }
-
             setTimeout(() => {
-                runIntro(shouldPlayVideo);
+                runIntro();
             }, 100);
         }
     }, 30);
@@ -273,14 +196,7 @@ document.addEventListener("DOMContentLoaded", () => {
     // ═══════════════════════════════════════
     // 4. Intro Timeline
     // ═══════════════════════════════════════
-    function runIntro(playVideo) {
-        // Fallback play trigger if not already playing
-        if (playVideo && bgVideo && bgVideo.parentNode) {
-            bgVideo.play().catch(err => {
-                console.log("Background video play fallback failed:", err);
-            });
-        }
-
+    function runIntro() {
         const tl = gsap.timeline({
             onComplete: () => {
                 document.body.classList.remove('loading');
@@ -299,39 +215,6 @@ document.addEventListener("DOMContentLoaded", () => {
                 if (preloader) preloader.style.display = 'none';
             }
         });
-
-        if (playVideo && bgVideo && bgVideo.parentNode) {
-            // Unified video fade-in: wait for actual frames before revealing.
-            // On desktop, preload="auto" usually has frames ready immediately;
-            // on mobile (and slow CDN), frames may arrive later.
-            // We listen for canplay/playing and fade in when frames exist.
-            // If nothing plays within 6 seconds, we discard the video entirely
-            // and the CSS ambient gradient shows as a clean fallback — no black.
-            let videoFadedIn = false;
-            const fadeInVideo = () => {
-                if (videoFadedIn) return;
-                videoFadedIn = true;
-                gsap.to('.bg-video', { opacity: 0.4, duration: 1.5, ease: "power2.out" });
-            };
-
-            // If frames are already available (desktop with good preload), show immediately
-            if (bgVideo.readyState >= 3) {
-                fadeInVideo();
-            } else {
-                bgVideo.addEventListener('canplay', fadeInVideo, { once: true });
-                bgVideo.addEventListener('playing', fadeInVideo, { once: true });
-            }
-
-            // Safety timeout: if video hasn't played after 6s, give up and discard it.
-            // This prevents a black rectangle from ever being shown to the user.
-            setTimeout(() => {
-                if (!videoFadedIn) {
-                    bgVideo.removeEventListener('canplay', fadeInVideo);
-                    bgVideo.removeEventListener('playing', fadeInVideo);
-                    discardVideo(bgVideo);
-                }
-            }, 6000);
-        }
 
         // Reveal hero title characters with original premium 3D cyber transitions
         tl.fromTo('.hero-title .char', 
@@ -436,6 +319,119 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
     });
+
+    // ═══════════════════════════════════════
+    // 7.5. 3D Cyber Journey Video Scroll Scrub & HUD Controller
+    // ═══════════════════════════════════════
+    const journeyVideo = document.getElementById('journeyVideo');
+    const journeySection = document.getElementById('journey');
+    const phaseNumEl = document.getElementById('hudPhaseNum');
+    const progressFillEl = document.getElementById('journeyProgressFill');
+    const latencyEl = document.getElementById('hudLatency');
+    const pipelineEl = document.getElementById('hudPipeline');
+    
+    const step1El = document.getElementById('journeyStep1');
+    const step2El = document.getElementById('journeyStep2');
+    const step3El = document.getElementById('journeyStep3');
+
+    if (journeyVideo && journeySection) {
+        journeyVideo.muted = true;
+        journeyVideo.playsInline = true;
+
+        let targetTime = 0;
+        let isSeeking = false;
+        let videoDuration = 10;
+
+        const updateDuration = () => {
+            if (journeyVideo.duration && !isNaN(journeyVideo.duration)) {
+                videoDuration = journeyVideo.duration;
+            }
+        };
+        journeyVideo.addEventListener('loadedmetadata', updateDuration);
+        updateDuration();
+
+        // Smooth requestAnimationFrame lerp loop
+        const updateVideoTime = () => {
+            if (!isSeeking && journeyVideo.readyState >= 2) {
+                const diff = Math.abs(journeyVideo.currentTime - targetTime);
+                if (diff > 0.02) {
+                    journeyVideo.currentTime += (targetTime - journeyVideo.currentTime) * 0.22;
+                }
+            }
+            requestAnimationFrame(updateVideoTime);
+        };
+        requestAnimationFrame(updateVideoTime);
+
+        // GSAP ScrollTrigger Pin & Scrub
+        ScrollTrigger.create({
+            trigger: journeySection,
+            start: "top top",
+            end: "+=2200",
+            pin: true,
+            scrub: 0.8,
+            anticipatePin: 1,
+            onUpdate: (self) => {
+                const progress = self.progress;
+                targetTime = progress * Math.max(videoDuration - 0.05, 0);
+
+                if (progressFillEl) {
+                    progressFillEl.style.width = (progress * 100) + '%';
+                }
+
+                // Phase sync
+                if (progress < 0.33) {
+                    step1El?.classList.add('active');
+                    step2El?.classList.remove('active');
+                    step3El?.classList.remove('active');
+                    if (phaseNumEl) phaseNumEl.textContent = '01';
+                    if (pipelineEl) pipelineEl.textContent = 'AI-NATIVE';
+                    if (latencyEl) latencyEl.textContent = (0.02 + progress * 0.05).toFixed(2) + 'ms';
+                } else if (progress < 0.67) {
+                    step1El?.classList.remove('active');
+                    step2El?.classList.add('active');
+                    step3El?.classList.remove('active');
+                    if (phaseNumEl) phaseNumEl.textContent = '02';
+                    if (pipelineEl) pipelineEl.textContent = 'QUANTUM SEC';
+                    if (latencyEl) latencyEl.textContent = '0.01ms';
+                } else {
+                    step1El?.classList.remove('active');
+                    step2El?.classList.remove('active');
+                    step3El?.classList.add('active');
+                    if (phaseNumEl) phaseNumEl.textContent = '03';
+                    if (pipelineEl) pipelineEl.textContent = 'SCALE READY';
+                    if (latencyEl) latencyEl.textContent = '0.00ms';
+                }
+            }
+        });
+
+        // 3D Perspective Tilt on Mouse Move (Desktop)
+        if (!isMobile) {
+            const viewport = journeySection.querySelector('.journey-viewport');
+            if (viewport) {
+                journeySection.addEventListener('mousemove', (e) => {
+                    const rect = viewport.getBoundingClientRect();
+                    const x = e.clientX - rect.left - rect.width / 2;
+                    const y = e.clientY - rect.top - rect.height / 2;
+                    gsap.to(viewport, {
+                        rotateY: (x / rect.width) * 5,
+                        rotateX: -(y / rect.height) * 5,
+                        duration: 0.6,
+                        ease: "power2.out",
+                        transformPerspective: 1200
+                    });
+                });
+
+                journeySection.addEventListener('mouseleave', () => {
+                    gsap.to(viewport, {
+                        rotateY: 0,
+                        rotateX: 0,
+                        duration: 0.8,
+                        ease: "power2.out"
+                    });
+                });
+            }
+        }
+    }
 
     // ═══════════════════════════════════════
     // 8. Parallax on images
@@ -774,8 +770,8 @@ document.addEventListener("DOMContentLoaded", () => {
     // 16. Continuous Title Transition
     // ═══════════════════════════════════════
     const titles = [
-        { l1: "Vibe", l2: "Coding" },
-        { l1: "Cyber", l2: "Security" }
+        { l1: "Full-Stack", l2: "AI-Native", l3: "Developer" },
+        { l1: "Cyber", l2: "Security", l3: "Expert" }
     ];
     let currentTitleIndex = 0;
     let waveTween;
@@ -798,9 +794,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     function swapHeroTitle() {
         if (waveTween) waveTween.kill();
-        // Reset ONLY lines 1 & 2 characters to baseline — line 3 ("EXPERT") is static
-        // and should not be snapped white, which would cause a visible flash on every swap.
-        gsap.set('#titleLine1 .char, #titleLine2 .char', { y: 0, color: "#ffffff", textShadow: "none" });
+        // Reset all 3 lines' characters to baseline
+        gsap.set('#titleLine1 .char, #titleLine2 .char, #titleLine3 .char', { y: 0, color: "#ffffff", textShadow: "none" });
         // Set overflow to hidden for the sliding mask effect during transition
         gsap.set('.line-wrap', { overflow: 'hidden' });
 
@@ -809,24 +804,26 @@ document.addEventListener("DOMContentLoaded", () => {
 
         const line1 = document.getElementById('titleLine1');
         const line2 = document.getElementById('titleLine2');
+        const line3 = document.getElementById('titleLine3');
 
         const tl = gsap.timeline({
             onComplete: () => {
                 // Update text using the in-place split text recycling
                 updateSplitText(line1, nextTitle.l1);
                 updateSplitText(line2, nextTitle.l2);
+                updateSplitText(line3, nextTitle.l3);
 
                 // Reveal animation for new characters
-                gsap.fromTo(['#titleLine1 .char', '#titleLine2 .char'], 
+                gsap.fromTo(['#titleLine1 .char', '#titleLine2 .char', '#titleLine3 .char'], 
                     { 
                         y: "100%", 
-                        opacity: 0,
+                        opacity: 0, 
                         rotateX: -90,
                         color: "#7000ff"
                     },
                     {
                         y: "0%", 
-                        opacity: 1,
+                        opacity: 1, 
                         rotateX: 0,
                         color: "#ffffff",
                         duration: 0.8,
@@ -842,8 +839,8 @@ document.addEventListener("DOMContentLoaded", () => {
             }
         });
 
-        // Hide current characters of line 1 and 2
-        tl.to(['#titleLine1 .char', '#titleLine2 .char'], {
+        // Hide current characters of line 1, 2, and 3
+        tl.to(['#titleLine1 .char', '#titleLine2 .char', '#titleLine3 .char'], {
             y: "-100%",
             opacity: 0,
             duration: 0.5,
@@ -866,7 +863,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const ro = new ResizeObserver(() => {
             ScrollTrigger.refresh();
         });
-        document.querySelectorAll('.about, .projects-section, .certifications, .education, .skills-section, .recruitment-section, .footer').forEach(el => {
+        document.querySelectorAll('.journey-section, .about, .projects-section, .certifications, .education, .skills-section, .recruitment-section, .footer').forEach(el => {
             ro.observe(el);
         });
     }
