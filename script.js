@@ -321,116 +321,200 @@ document.addEventListener("DOMContentLoaded", () => {
     });
 
     // ═══════════════════════════════════════
-    // 7.5. 3D Cyber Journey Video Scroll Scrub & HUD Controller
+    // 7.5. Global 3D Cyber Neural Background Engine (Interactive 60+ FPS Canvas)
     // ═══════════════════════════════════════
-    const journeyVideo = document.getElementById('journeyVideo');
-    const journeySection = document.getElementById('journey');
-    const phaseNumEl = document.getElementById('hudPhaseNum');
-    const progressFillEl = document.getElementById('journeyProgressFill');
-    const latencyEl = document.getElementById('hudLatency');
-    const pipelineEl = document.getElementById('hudPipeline');
-    
-    const step1El = document.getElementById('journeyStep1');
-    const step2El = document.getElementById('journeyStep2');
-    const step3El = document.getElementById('journeyStep3');
+    const neuralCanvas = document.getElementById('neuralCanvas');
+    if (neuralCanvas) {
+        const ctx = neuralCanvas.getContext('2d');
+        let width = 0;
+        let height = 0;
+        let dpr = 1;
 
-    if (journeyVideo && journeySection) {
-        journeyVideo.muted = true;
-        journeyVideo.playsInline = true;
+        function resizeCanvas() {
+            dpr = Math.min(window.devicePixelRatio || 1, 2);
+            width = window.innerWidth;
+            height = window.innerHeight;
+            neuralCanvas.width = width * dpr;
+            neuralCanvas.height = height * dpr;
+            ctx.setTransform(1, 0, 0, 1, 0, 0);
+            ctx.scale(dpr, dpr);
+        }
+        resizeCanvas();
+        window.addEventListener('resize', resizeCanvas);
 
-        let targetTime = 0;
-        let isSeeking = false;
-        let videoDuration = 10;
+        // 3D Neural Nodes Configuration
+        const nodeCount = isMobile ? 55 : 100;
+        const nodes = [];
+        const fov = 400;
+        let rotY = 0;
+        let rotX = 0;
+        let targetRotX = 0;
+        let targetRotY = 0;
+        let scrollSpin = 0;
+        let mouseX = width / 2;
+        let mouseY = height / 2;
+        let curMouseX = width / 2;
+        let curMouseY = height / 2;
 
-        const updateDuration = () => {
-            if (journeyVideo.duration && !isNaN(journeyVideo.duration)) {
-                videoDuration = journeyVideo.duration;
-            }
-        };
-        journeyVideo.addEventListener('loadedmetadata', updateDuration);
-        updateDuration();
+        const colors = [
+            '#00f3ff', // Cyan
+            '#00f3ff', 
+            '#7000ff', // Neon Purple
+            '#9d4edd', // Bright Violet
+            '#ffffff'  // Cyber White
+        ];
 
-        // Smooth requestAnimationFrame lerp loop
-        const updateVideoTime = () => {
-            if (!isSeeking && journeyVideo.readyState >= 2) {
-                const diff = Math.abs(journeyVideo.currentTime - targetTime);
-                if (diff > 0.02) {
-                    journeyVideo.currentTime += (targetTime - journeyVideo.currentTime) * 0.22;
-                }
-            }
-            requestAnimationFrame(updateVideoTime);
-        };
-        requestAnimationFrame(updateVideoTime);
+        // Spread nodes evenly throughout a dynamic 3D ellipsoid
+        for (let i = 0; i < nodeCount; i++) {
+            const radX = 350 + Math.random() * 450;
+            const radY = 220 + Math.random() * 320;
+            const radZ = 300 + Math.random() * 400;
+            const theta = Math.random() * Math.PI * 2;
+            const phi = Math.acos((Math.random() * 2) - 1);
 
-        // GSAP ScrollTrigger Pin & Scrub
-        ScrollTrigger.create({
-            trigger: journeySection,
-            start: "top top",
-            end: "+=2200",
-            pin: true,
-            scrub: 0.8,
-            anticipatePin: 1,
-            onUpdate: (self) => {
-                const progress = self.progress;
-                targetTime = progress * Math.max(videoDuration - 0.05, 0);
+            nodes.push({
+                x: radX * Math.sin(phi) * Math.cos(theta),
+                y: radY * Math.sin(phi) * Math.sin(theta),
+                z: radZ * Math.cos(phi),
+                baseX: radX * Math.sin(phi) * Math.cos(theta),
+                baseY: radY * Math.sin(phi) * Math.sin(theta),
+                baseZ: radZ * Math.cos(phi),
+                vx: (Math.random() - 0.5) * 0.25,
+                vy: (Math.random() - 0.5) * 0.25,
+                vz: (Math.random() - 0.5) * 0.25,
+                size: 1.8 + Math.random() * 2.2,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                pulse: Math.random() * Math.PI * 2,
+                pulseSpeed: 0.02 + Math.random() * 0.03
+            });
+        }
 
-                if (progressFillEl) {
-                    progressFillEl.style.width = (progress * 100) + '%';
-                }
-
-                // Phase sync
-                if (progress < 0.33) {
-                    step1El?.classList.add('active');
-                    step2El?.classList.remove('active');
-                    step3El?.classList.remove('active');
-                    if (phaseNumEl) phaseNumEl.textContent = '01';
-                    if (pipelineEl) pipelineEl.textContent = 'AI-NATIVE';
-                    if (latencyEl) latencyEl.textContent = (0.02 + progress * 0.05).toFixed(2) + 'ms';
-                } else if (progress < 0.67) {
-                    step1El?.classList.remove('active');
-                    step2El?.classList.add('active');
-                    step3El?.classList.remove('active');
-                    if (phaseNumEl) phaseNumEl.textContent = '02';
-                    if (pipelineEl) pipelineEl.textContent = 'QUANTUM SEC';
-                    if (latencyEl) latencyEl.textContent = '0.01ms';
-                } else {
-                    step1El?.classList.remove('active');
-                    step2El?.classList.remove('active');
-                    step3El?.classList.add('active');
-                    if (phaseNumEl) phaseNumEl.textContent = '03';
-                    if (pipelineEl) pipelineEl.textContent = 'SCALE READY';
-                    if (latencyEl) latencyEl.textContent = '0.00ms';
-                }
-            }
+        // Global mouse tracking across the entire website
+        window.addEventListener('mousemove', (e) => {
+            mouseX = e.clientX;
+            mouseY = e.clientY;
+            targetRotY = ((mouseX - width / 2) / (width / 2)) * 0.35;
+            targetRotX = -((mouseY - height / 2) / (height / 2)) * 0.25;
         });
 
-        // 3D Perspective Tilt on Mouse Move (Desktop)
-        if (!isMobile) {
-            const viewport = journeySection.querySelector('.journey-viewport');
-            if (viewport) {
-                journeySection.addEventListener('mousemove', (e) => {
-                    const rect = viewport.getBoundingClientRect();
-                    const x = e.clientX - rect.left - rect.width / 2;
-                    const y = e.clientY - rect.top - rect.height / 2;
-                    gsap.to(viewport, {
-                        rotateY: (x / rect.width) * 5,
-                        rotateX: -(y / rect.height) * 5,
-                        duration: 0.6,
-                        ease: "power2.out",
-                        transformPerspective: 1200
-                    });
-                });
+        // Touch tracking for mobile
+        window.addEventListener('touchmove', (e) => {
+            if (e.touches && e.touches[0]) {
+                mouseX = e.touches[0].clientX;
+                mouseY = e.touches[0].clientY;
+                targetRotY = ((mouseX - width / 2) / (width / 2)) * 0.25;
+                targetRotX = -((mouseY - height / 2) / (height / 2)) * 0.18;
+            }
+        }, { passive: true });
 
-                journeySection.addEventListener('mouseleave', () => {
-                    gsap.to(viewport, {
-                        rotateY: 0,
-                        rotateX: 0,
-                        duration: 0.8,
-                        ease: "power2.out"
-                    });
+        // Scroll-driven camera rotation across the page
+        lenis.on('scroll', (e) => {
+            scrollSpin = (e.scroll || window.scrollY) * 0.0006;
+        });
+
+        let isDocumentVisible = true;
+        document.addEventListener('visibilitychange', () => {
+            isDocumentVisible = !document.hidden;
+        });
+
+        function renderNeuralNetwork() {
+            requestAnimationFrame(renderNeuralNetwork);
+            if (!isDocumentVisible) return;
+
+            // Interpolate mouse and rotation smoothly
+            curMouseX += (mouseX - curMouseX) * 0.06;
+            curMouseY += (mouseY - curMouseY) * 0.06;
+            rotY += (targetRotY + scrollSpin - rotY) * 0.04;
+            rotX += (targetRotX - rotX) * 0.04;
+
+            ctx.clearRect(0, 0, width, height);
+
+            const cx = width / 2;
+            const cy = height / 2;
+            const cosY = Math.cos(rotY);
+            const sinY = Math.sin(rotY);
+            const cosX = Math.cos(rotX);
+            const sinX = Math.sin(rotX);
+
+            const projected = [];
+
+            // Project 3D coordinates
+            for (let i = 0; i < nodes.length; i++) {
+                const n = nodes[i];
+
+                // Slow ambient drift
+                n.baseX += n.vx;
+                n.baseY += n.vy;
+                n.baseZ += n.vz;
+                if (Math.abs(n.baseX) > 850) n.vx *= -1;
+                if (Math.abs(n.baseY) > 550) n.vy *= -1;
+                if (Math.abs(n.baseZ) > 750) n.vz *= -1;
+
+                n.pulse += n.pulseSpeed;
+
+                // 3D Rotation (Y then X)
+                let x1 = n.baseX * cosY - n.baseZ * sinY;
+                let z1 = n.baseZ * cosY + n.baseX * sinY;
+                let y1 = n.baseY * cosX - z1 * sinX;
+                let z2 = z1 * cosX + n.baseY * sinX;
+
+                // Mouse magnetic reaction
+                const distToMouse = Math.hypot(x1 - (curMouseX - cx) * 0.8, y1 - (curMouseY - cy) * 0.8);
+                if (distToMouse < 180) {
+                    const force = (1 - distToMouse / 180) * 22;
+                    x1 += ((x1 - (curMouseX - cx) * 0.8) / (distToMouse || 1)) * force;
+                    y1 += ((y1 - (curMouseY - cy) * 0.8) / (distToMouse || 1)) * force;
+                }
+
+                const scale = fov / (fov + z2 + 350);
+                if (scale <= 0) continue;
+
+                projected.push({
+                    x: cx + x1 * scale,
+                    y: cy + y1 * scale,
+                    scale: scale,
+                    z: z2,
+                    color: n.color,
+                    size: Math.max(n.size * scale * (1 + 0.25 * Math.sin(n.pulse)), 1)
                 });
             }
+
+            // Draw synaptic connection network
+            const maxDist = isMobile ? 85 : 125;
+            for (let i = 0; i < projected.length; i++) {
+                const p1 = projected[i];
+                for (let j = i + 1; j < projected.length; j++) {
+                    const p2 = projected[j];
+                    const dx = p1.x - p2.x;
+                    const dy = p1.y - p2.y;
+                    const dist = Math.hypot(dx, dy);
+
+                    if (dist < maxDist && Math.abs(p1.z - p2.z) < 260) {
+                        const alpha = (1 - dist / maxDist) * 0.35 * Math.min(p1.scale, p2.scale);
+                        ctx.beginPath();
+                        ctx.moveTo(p1.x, p1.y);
+                        ctx.lineTo(p2.x, p2.y);
+                        ctx.strokeStyle = `rgba(0, 243, 255, ${alpha.toFixed(3)})`;
+                        ctx.lineWidth = Math.min(p1.scale * 1.1, 1.2);
+                        ctx.stroke();
+                    }
+                }
+            }
+
+            // Draw glowing nodes
+            for (let i = 0; i < projected.length; i++) {
+                const p = projected[i];
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2);
+                ctx.fillStyle = p.color;
+                ctx.shadowColor = p.color;
+                ctx.shadowBlur = 10 * p.scale;
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
         }
+
+        requestAnimationFrame(renderNeuralNetwork);
     }
 
     // ═══════════════════════════════════════
@@ -863,7 +947,7 @@ document.addEventListener("DOMContentLoaded", () => {
         const ro = new ResizeObserver(() => {
             ScrollTrigger.refresh();
         });
-        document.querySelectorAll('.journey-section, .about, .projects-section, .certifications, .education, .skills-section, .recruitment-section, .footer').forEach(el => {
+        document.querySelectorAll('.about, .projects-section, .certifications, .education, .skills-section, .recruitment-section, .footer').forEach(el => {
             ro.observe(el);
         });
     }

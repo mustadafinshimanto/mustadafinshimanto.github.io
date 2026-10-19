@@ -103,8 +103,9 @@
         <i class="fa-solid fa-arrow-up"></i>
     </div>
 
-    <!-- Ambient Background Animation -->
+    <!-- Ambient Background Animation with Interactive Neural Canvas -->
     <div class="ambient-background">
+        <canvas id="neuralCanvas" class="global-neural-canvas"></canvas>
         <div class="orb orb-1"></div>
         <div class="orb orb-2"></div>
         <div class="noise-overlay"></div>
@@ -186,73 +187,14 @@
                 </div>
             </section>
 
-            <!-- 3D Cyber Journey Section -->
-            <section id="journey" class="journey-section">
-                <div class="journey-viewport">
-                    <video id="journeyVideo" class="journey-video" playsinline muted preload="auto">
-                        <source src="assets/cyber_journey.mp4" type="video/mp4">
-                    </video>
-                    <div class="journey-overlay"></div>
-                    
-                    <!-- Cybernetic HUD Overlay -->
-                    <div class="journey-hud">
-                        <div class="hud-corner top-left"></div>
-                        <div class="hud-corner top-right"></div>
-                        <div class="hud-corner bottom-left"></div>
-                        <div class="hud-corner bottom-right"></div>
-                        
-                        <div class="hud-header">
-                            <div class="hud-status">
-                                <span class="hud-dot pulsing"></span>
-                                <span class="hud-label">NEURAL LINK ACTIVE</span>
-                            </div>
-                            <div class="hud-phase-tracker">
-                                PHASE <span id="hudPhaseNum">01</span> / 03
-                            </div>
-                        </div>
-
-                        <div class="hud-telemetry">
-                            <div class="telemetry-item">
-                                <span class="telemetry-key">LATENCY</span>
-                                <span class="telemetry-val" id="hudLatency">0.02ms</span>
-                            </div>
-                            <div class="telemetry-item">
-                                <span class="telemetry-key">SECURITY</span>
-                                <span class="telemetry-val highlight">HARDENED</span>
-                            </div>
-                            <div class="telemetry-item">
-                                <span class="telemetry-key">PIPELINE</span>
-                                <span class="telemetry-val" id="hudPipeline">AI-NATIVE</span>
-                            </div>
-                        </div>
-
-                        <div class="hud-narrative">
-                            <!-- Phase 1 Callout -->
-                            <div class="journey-step step-1 active" id="journeyStep1">
-                                <span class="step-tag">01 // INFILTRATION</span>
-                                <h3 class="step-title">Neural Cyber Core</h3>
-                                <p class="step-desc">Breaching the digital perimeter into autonomous AI-native architectures.</p>
-                            </div>
-                            <!-- Phase 2 Callout -->
-                            <div class="journey-step step-2" id="journeyStep2">
-                                <span class="step-tag">02 // MAINFRAME</span>
-                                <h3 class="step-title">Quantum Security Shields</h3>
-                                <p class="step-desc">Penetration testing & cryptographic defense safeguarding distributed systems.</p>
-                            </div>
-                            <!-- Phase 3 Callout -->
-                            <div class="journey-step step-3" id="journeyStep3">
-                                <span class="step-tag">03 // EMERGENCE</span>
-                                <h3 class="step-title">High-Velocity Metropolis</h3>
-                                <p class="step-desc">Shipping production-grade full-stack applications with enterprise scale.</p>
-                            </div>
-                        </div>
-
-                        <!-- Progress Bar Track -->
-                        <div class="journey-progress-track">
-                            <div class="journey-progress-fill" id="journeyProgressFill"></div>
-                        </div>
+            <!-- Image Section 1 -->
+            <section class="image-section">
+                <div class="image-reveal-wrapper parallax-trigger" data-speed="0.5">
+                    <div class="image-reveal">
+                        <img src="assets/img1.webp" alt="Digital Innovation Conceptual Image">
                     </div>
                 </div>
+                <h2 class="floating-text difference-text rellax" data-speed="-0.5">Innovation</h2>
             </section>
 
             <!-- About Section -->

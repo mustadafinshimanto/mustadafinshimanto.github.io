@@ -105,6 +105,17 @@ body.loading { overflow: hidden; }
     100% { background: radial-gradient(ellipse at 35% 60%, #041020 0%, #020810 45%, #0c0520 100%); }
 }
 
+/* Full-Viewport Interactive 3D Cyber Neural Canvas */
+.global-neural-canvas {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 2;
+    pointer-events: none;
+    opacity: 0.95;
+}
+
 .orb {
     position: absolute;
     border-radius: 50%;
@@ -375,219 +386,6 @@ body.loading { overflow: hidden; }
 @keyframes marquee {
     0% { transform: translateX(0); }
     100% { transform: translateX(-50%); }
-}
-
-/* ── 3D Cyber Journey Section ── */
-.journey-section {
-    position: relative;
-    width: 100%;
-    height: 100vh;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    overflow: hidden;
-    background: transparent;
-    z-index: 5;
-}
-
-.journey-viewport {
-    position: relative;
-    width: 92vw;
-    height: 90vh;
-    max-width: 1700px;
-    border-radius: 16px;
-    overflow: hidden;
-    border: 1px solid rgba(0, 243, 255, 0.3);
-    box-shadow: 0 0 60px rgba(0, 243, 255, 0.12), inset 0 0 40px rgba(0, 0, 0, 0.8);
-    background: #000;
-}
-
-.journey-video {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    object-fit: cover;
-    z-index: 1;
-    filter: contrast(1.08) brightness(1.02);
-}
-
-.journey-overlay {
-    position: absolute;
-    inset: 0;
-    z-index: 2;
-    pointer-events: none;
-    background: radial-gradient(circle at center, transparent 40%, rgba(5,5,5,0.7) 100%),
-                linear-gradient(to top, rgba(5,5,5,0.85) 0%, transparent 40%),
-                linear-gradient(to bottom, rgba(5,5,5,0.6) 0%, transparent 30%);
-}
-
-.journey-hud {
-    position: absolute;
-    inset: 0;
-    z-index: 3;
-    pointer-events: none;
-    padding: 35px;
-    display: flex;
-    flex-direction: column;
-    justify-content: space-between;
-}
-
-/* L-shaped HUD corner brackets */
-.hud-corner {
-    position: absolute;
-    width: 24px;
-    height: 24px;
-    border-color: var(--accent);
-    border-style: solid;
-    pointer-events: none;
-}
-.hud-corner.top-left { top: 15px; left: 15px; border-width: 2px 0 0 2px; }
-.hud-corner.top-right { top: 15px; right: 15px; border-width: 2px 2px 0 0; }
-.hud-corner.bottom-left { bottom: 15px; left: 15px; border-width: 0 0 2px 2px; }
-.hud-corner.bottom-right { bottom: 15px; right: 15px; border-width: 0 2px 2px 0; }
-
-.hud-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    width: 100%;
-}
-
-.hud-status {
-    display: inline-flex;
-    align-items: center;
-    gap: 10px;
-    background: rgba(0, 243, 255, 0.08);
-    border: 1px solid rgba(0, 243, 255, 0.25);
-    padding: 6px 14px;
-    border-radius: 20px;
-    backdrop-filter: blur(10px);
-}
-
-.hud-label {
-    font-family: var(--font-serif);
-    font-size: 0.8rem;
-    color: var(--accent);
-    letter-spacing: 2px;
-}
-
-.hud-phase-tracker {
-    font-family: var(--font-heading);
-    font-size: 0.95rem;
-    letter-spacing: 3px;
-    color: var(--text-bright);
-    background: rgba(0,0,0,0.5);
-    padding: 6px 16px;
-    border-radius: 20px;
-    border: 1px solid rgba(255,255,255,0.1);
-}
-
-#hudPhaseNum {
-    color: var(--accent);
-    font-weight: 700;
-}
-
-.hud-telemetry {
-    position: absolute;
-    right: 35px;
-    top: 50%;
-    transform: translateY(-50%);
-    display: flex;
-    flex-direction: column;
-    gap: 14px;
-}
-
-.telemetry-item {
-    display: flex;
-    flex-direction: column;
-    align-items: flex-end;
-    background: rgba(5, 5, 5, 0.65);
-    padding: 8px 14px;
-    border-radius: 6px;
-    border-right: 2px solid var(--accent);
-    backdrop-filter: blur(8px);
-}
-
-.telemetry-key {
-    font-family: var(--font-serif);
-    font-size: 0.65rem;
-    color: var(--muted);
-    letter-spacing: 1.5px;
-}
-
-.telemetry-val {
-    font-family: var(--font-heading);
-    font-size: 0.85rem;
-    color: var(--text-bright);
-    letter-spacing: 1px;
-}
-
-.telemetry-val.highlight {
-    color: #2ecc71;
-}
-
-.hud-narrative {
-    position: relative;
-    max-width: 580px;
-    min-height: 110px;
-}
-
-.journey-step {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    opacity: 0;
-    transform: translateY(15px);
-    transition: opacity 0.4s cubic-bezier(0.16, 1, 0.3, 1), transform 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-    pointer-events: none;
-}
-
-.journey-step.active {
-    opacity: 1;
-    transform: translateY(0);
-    pointer-events: auto;
-}
-
-.step-tag {
-    font-family: var(--font-serif);
-    font-size: 0.8rem;
-    color: var(--accent);
-    letter-spacing: 2px;
-    display: block;
-    margin-bottom: 6px;
-}
-
-.step-title {
-    font-family: var(--font-heading);
-    font-size: clamp(1.4rem, 2.8vw, 2.2rem);
-    color: var(--text-bright);
-    margin-bottom: 8px;
-    line-height: 1.1;
-    text-shadow: 0 0 20px rgba(0, 243, 255, 0.4);
-}
-
-.step-desc {
-    font-size: 0.95rem;
-    color: rgba(255,255,255,0.75);
-    line-height: 1.5;
-}
-
-.journey-progress-track {
-    width: 100%;
-    height: 3px;
-    background: rgba(255,255,255,0.1);
-    border-radius: 2px;
-    margin-top: 20px;
-    overflow: hidden;
-}
-
-.journey-progress-fill {
-    width: 0%;
-    height: 100%;
-    background: linear-gradient(90deg, var(--accent), var(--accent-2));
-    border-radius: 2px;
 }
 
 /* ── Parallax Image Sections ── */
@@ -1537,12 +1335,6 @@ body.loading { overflow: hidden; }
     /* ── Marquee Mobile ── */
     .marquee-content { font-size: 1rem; gap: 20px; }
     
-    /* ── Journey Section Mobile ── */
-    .journey-viewport { width: 95vw; height: 80vh; }
-    .journey-hud { padding: 20px; }
-    .hud-telemetry { display: none; }
-    .step-title { font-size: 1.4rem; }
-    .step-desc { font-size: 0.85rem; }
     
     /* ── Image Sections Mobile ── */
     .image-reveal-wrapper { width: 90vw; height: 50vh; }
@@ -1576,13 +1368,6 @@ body.loading { overflow: hidden; }
     .logo-text { font-size: 1rem; letter-spacing: 2px; }
     .menu-toggle { font-size: 1.2rem; }
     
-    /* ── Journey Section Mobile Small ── */
-    .journey-viewport { width: 95vw; height: 75vh; }
-    .hud-header { font-size: 0.75rem; }
-    .hud-status { padding: 4px 10px; }
-    .hud-phase-tracker { padding: 4px 12px; font-size: 0.8rem; }
-    .step-title { font-size: 1.15rem; }
-    .step-desc { font-size: 0.8rem; }
 
     /* ── Hero Mobile Small ── */
     .hero-title { font-size: clamp(1.5rem, 5vw, 2.5rem); }
